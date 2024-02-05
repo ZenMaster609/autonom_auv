@@ -36,14 +36,10 @@
     <parent link="base_footprint"/>
     <child link="base_link" />
   </joint>
-
+ 
   <!-- the model -->
   <link name="base_link">
     <inertial>
-<<<<<<< HEAD
-=======
-        <origin xyz="0 0 0" />
->>>>>>> 7589063c09b2835a1d0423d5874da9fdcb3b7831
       <mass value="50" />
       <origin xyz="0 0 0" />
       <inertia ixx="50.0" ixy="0.0" ixz="0.0"
@@ -52,7 +48,6 @@
     </inertial>
     <visual>
       <geometry>
-<<<<<<< HEAD
         <box size="0.5 0.5 0.5" /> <!-- does not need to match collision -->
       </geometry>
     </visual>
@@ -60,15 +55,6 @@
       <origin xyz="0 0 0" />
       <geometry>
         <box size="0.5 0.5 0.5" /> 
-=======
-        <box size="0.1 0.1 0.1" /> <!-- does not need to match collision -->
-      </geometry>
-    </visual>
-    <collision>
-    <origin xyz="0 0 0" />
-      <geometry>
-        <box size="0.1 0.1 0.1" /> 
->>>>>>> 7589063c09b2835a1d0423d5874da9fdcb3b7831
       </geometry>
     </collision>
   </link>

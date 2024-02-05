@@ -17,11 +17,7 @@ def generate_launch_description():
                 )]), launch_arguments={'use_sim_time': 'true'}.items()
     )
     
-<<<<<<< HEAD
-    world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'full.world')
-=======
     world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'empty.world')
->>>>>>> 7589063c09b2835a1d0423d5874da9fdcb3b7831
 
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
