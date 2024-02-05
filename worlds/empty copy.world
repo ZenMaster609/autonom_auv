@@ -1,0 +1,63 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+  <gravity>0 0 0</gravity>
+
+      <include>
+        <uri>model://sun</uri>
+      </include>
+
+      <include>
+        <uri>model://background</uri>
+      </include>
+
+      <include>
+      <uri>model://yellow_pipe</uri>
+      <pose>3 0 0 1.5708 0 1.5708</pose> 
+      <name>yellow_pipe_1</name>
+      </include>
+
+      <include>
+      <uri>model://aruco0</uri>
+      <pose>3 0 0.25 3.1415 1.5708 0</pose> 
+      <name>aruco_0</name>
+      </include>
+
+      <include>
+      <uri>model://corner</uri>
+        <pose>6 0 0 0 0 0</pose> 
+      <name>corner_1</name>
+      </include>
+
+      <include>
+      <uri>model://yellow_pipe</uri>
+        <pose>6 3 0 1.5708 0 0</pose> 
+      <name>yellow_pipe_2</name>
+      </include>
+
+      <include>
+      <uri>model://aruco1</uri>
+      <pose>6 3 0.25 1.5708 1.5708 0</pose> 
+      <name>aruco_1</name>
+      </include>
+
+      <include>
+      <uri>model://corner</uri>
+        <pose>6 6 0 0 0 0</pose> 
+      <name>corner_2</name>
+      </include>
+
+      <include>
+      <uri>model://yellow_pipe</uri>
+        <pose>8.1 8.1 0 1.5708 0 2.3562</pose> 
+      <name>yellow_pipe_3</name>
+      </include>
+
+      <include>
+      <uri>model://aruco2</uri>
+      <pose>8.1 8.1 0.25 2.3562 1.5708 0</pose> 
+      <name>aruco_2</name>
+      </include>
+
+  </world>
+</sdf>
