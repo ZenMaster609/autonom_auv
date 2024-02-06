@@ -66,11 +66,7 @@
         <kinematic>0</kinematic>
       </link>
     </model>
-<<<<<<< HEAD
     <gravity>0 0 -9.8</gravity>
-=======
-    <gravity>0 0 0</gravity>
->>>>>>> 7589063c09b2835a1d0423d5874da9fdcb3b7831
     <magnetic_field>6e-06 2.3e-05 -4.2e-05</magnetic_field>
     <atmosphere type='adiabatic'/>
     <physics type='ode'>

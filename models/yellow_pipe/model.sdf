@@ -1,0 +1,32 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+      <model name="yellow_pipe">
+        <pose>0 0 0 1.5708 0 0</pose> <!-- x y z roll pitch yaw -->
+        <static>true</static>
+        <link name="link">
+          <!-- Pipe collision definition -->
+          <!-- Pipe visual definition -->
+          <visual name="visual">
+            <geometry>
+              <cylinder>
+                <radius>0.25</radius>
+                <length>6.0</length>
+              </cylinder>
+            </geometry>
+            <material>
+              <ambient>1 1 0 1</ambient> <!-- Yellow color -->
+              <diffuse>1 1 0 1</diffuse> <!-- Yellow color -->
+              <specular>1 1 0 1</specular> <!-- Yellow color -->
+            </material>
+          </visual>
+          <collision name="collision">
+           <geometry>
+              <cylinder>
+                <radius>0.25</radius>
+                <length>6.0</length>
+              </cylinder>
+            </geometry>
+         </collision>
+        </link>
+      </model>
+</sdf>

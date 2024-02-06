@@ -1,0 +1,25 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+    <model name="underwater_background">
+      <pose>0 0 -1 0 0 0</pose> 
+      <link name="background_link">
+        <visual name="background_visual">
+          <geometry>
+            <box>
+              <size>100 100 1</size> 
+            </box>
+          </geometry>
+          <material>
+            <script>
+              <name>Gazebo/Blue</name>
+              <ambient>0 0 0.2 1</ambient> 
+              <diffuse>0 0 0.2 1</diffuse> 
+              <specular>0 0 0.2 1</specular> 
+              <emissive>0 0 0.2 1</emissive> 
+              <transparency>0</transparency>
+            </script>
+          </material>
+        </visual>
+      </link>
+    </model>
+</sdf>

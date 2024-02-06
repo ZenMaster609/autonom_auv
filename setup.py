@@ -30,6 +30,7 @@ setup(
         'console_scripts': [
             'movement = autonom_auv.movement:main',
             'imageHandler = autonom_auv.imageHandler:main',
+            'apply_force = autonom_auv.apply_force:main',
         ],
     },
 )

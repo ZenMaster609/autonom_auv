@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+      <model name="corner">
+      <static>true</static> <!-- Set to true if the sphere should not move -->
+      <pose>0 0 0 0 0 0</pose> <!-- Position and orientation of the sphere -->
+      <link name="link">
+        <visual name="visual">
+          <geometry>
+            <sphere>
+              <radius>0.25</radius>
+            </sphere>
+          </geometry>
+          <material>
+              <ambient>1 1 0 1</ambient> <!-- Yellow color -->
+              <diffuse>1 1 0 1</diffuse> <!-- Yellow color -->
+              <specular>1 1 0 1</specular> <!-- Yellow color -->
+          </material>
+        </visual>
+	<collision name="collision">
+       	    <geometry>
+            <sphere>
+              <radius>0.25</radius>
+            </sphere>
+          </geometry>
+	</collision>		
+        </link>
+     </model>
+</sdf>

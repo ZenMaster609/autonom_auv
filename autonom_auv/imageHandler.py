@@ -37,11 +37,12 @@ class ImageProcessor(Node):
         self.read_AruCo()
         self.color_filter()
         self.make_boxes()
-        self.find_closest_box()
-        self.find_contour_box()
-        self.find_middle_of_box()
-        self.find_angle_vel()
-        self.show_image()
+        if len(self.box_list)>0:
+            self.find_closest_box()
+            self.find_contour_box()
+            self.find_middle_of_box()
+            self.find_angle_vel()
+            self.show_image()
          
     
 
@@ -61,7 +62,6 @@ class ImageProcessor(Node):
         self.boxl_y = []
         contours, _ = cv2.findContours(self.maskM, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in range(len(contours)):
-            #if len(contours[cnt])>1:
             rect = cv2.minAreaRect(contours[cnt])
             box = np.intp(cv2.boxPoints(rect))
             self.box_list.append(box)
