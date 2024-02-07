@@ -47,6 +47,6 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        movement_script,
-        imageHandler_script
+        movement_script
+        #imageHandler_script
     ])
