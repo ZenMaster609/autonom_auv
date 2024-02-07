@@ -7,6 +7,7 @@ from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
 
+
 def generate_launch_description():
 
     package_name='autonom_auv' 
@@ -60,23 +61,24 @@ def generate_launch_description():
         executable= 'imageHandler',
         output='screen'
     )
+
+    movement_script = Node(
+        package = package_name,
+        executable= 'movement',
+        output='screen'
+    )
     
-    stat_tf = Node(
-            package='tf2_ros',
-            executable='static_transform_publisher',
-            arguments=['0', '0', '0', '0', '0', '0', '1', 'world', 'base_footprint'],
-            name='static_tf_pub_world_to_base_footprint'
-        )
+ 
     
 
     return LaunchDescription([
         rsp,
         gazebo,
         spawn_entity,
-        applyForce_script,
+        movement_script,
+        imageHandler_script
+        #applyForce_script,
         #controller_script,
-        fakeController_script,
-        #imageHandler_script,
-        stat_tf,
-        relativeForce_script
+        #fakeController_script,
+        #relativeForce_script
     ])

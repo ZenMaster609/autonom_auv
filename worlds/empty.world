@@ -59,5 +59,13 @@
       <name>aruco_2</name>
       </include>
 
+        <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+          <ros>
+            <namespace>/demo</namespace>
+            <argument>model_states:=model_states_demo</argument>
+          </ros>
+          <update_rate>1.0</update_rate>
+        </plugin>
+
   </world>
 </sdf>

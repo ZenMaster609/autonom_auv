@@ -29,6 +29,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'movement = autonom_auv.movement:main',
             'applyForce = autonom_auv.applyForce:main',
             'imageHandler = autonom_auv.imageHandler:main',
             'controller = autonom_auv.controller:main',

@@ -6,8 +6,8 @@ import cv2
 import os
 from ament_index_python.packages import get_package_share_directory
 import cv2.aruco as aruco
-from std_msgs.msg import Float32
 import numpy as np
+from geometry_msgs.msg import Twist
 
 
 class ImageProcessor(Node):
@@ -16,15 +16,19 @@ class ImageProcessor(Node):
         self.subscription = self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.subscription  # Prevent unused variable warning
         self.bridge = CvBridge()
-        self.publisher_ = self.create_publisher(Float32, '/angular_velocity', 10)
+        self.publisher_ = self.create_publisher(Twist, '/desired_vel_cmd', 10)
         self.ids_list = []
   
-
-    def publish_float(self, value):
-        msg = Float32()
-        msg.data = value
+    def publish_movement(self, x=1000.0, y=0.0, z=0.0, xt=0.0, yt=0.0, zt=0.0):
+        msg = Twist()
+        msg.linear.x = x
+        msg.linear.y = y
+        msg.linear.z = z
+        msg.angular.x = xt
+        msg.angular.y = yt
+        msg.angular.z = zt
         self.publisher_.publish(msg)
-        #self.get_logger().info(f'Publishing: {msg.data}')
+
 
     def listener_callback(self, data):
         self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -58,7 +62,6 @@ class ImageProcessor(Node):
         self.boxl_y = []
         contours, _ = cv2.findContours(self.maskM, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in range(len(contours)):
-            #if len(contours[cnt])>1:
             rect = cv2.minAreaRect(contours[cnt])
             box = np.intp(cv2.boxPoints(rect))
             self.box_list.append(box)
@@ -102,7 +105,7 @@ class ImageProcessor(Node):
     def find_angle_vel(self):
         offsett_x=1920/2-self.cX
         angle_vel=(offsett_x/(1920/2))
-        self.publish_float(angle_vel)
+        self.publish_movement(zt=angle_vel*1000)
 
     
     def read_AruCo(self):

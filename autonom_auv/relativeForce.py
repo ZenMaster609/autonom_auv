@@ -5,6 +5,7 @@ import tf2_ros
 from tf2_ros import Buffer, TransformListener
 import numpy as np
 from .mathClasses import vectorCalculator
+from geometry_msgs.msg import TransformStamped
 
 class RelativeForceNode(Node):
     def __init__(self):
@@ -22,7 +23,7 @@ class RelativeForceNode(Node):
         if orientation is None:
             self.get_logger().error('No orientation available.')
             return
-        
+        self.get_logger().info(f"Orientation is:  {orientation}")
         desiredVel_world = self.transform_vector_to_world_frame(msg.linear, orientation)
         desiredTorque_world = self.transform_vector_to_world_frame(msg.angular, orientation)
         addedVel_world = vectorCalculator.subtract_two_vectors(desiredVel_world, self.velWorld)
