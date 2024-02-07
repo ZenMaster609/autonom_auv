@@ -31,9 +31,27 @@ def generate_launch_description():
                                    '-entity', 'my_bot'],
                         output='screen')
 
-    movement_script = Node(
+    applyForce_script = Node(
         package=package_name,
-        executable='movement',
+        executable='applyForce',
+        output='screen'
+    )
+
+    controller_script = Node(
+        package=package_name,
+        executable='controller',
+        output='screen'
+    )
+
+    fakeController_script = Node(
+        package=package_name,
+        executable='fakeController',
+        output='screen'
+    )
+
+    relativeForce_script = Node(
+        package=package_name,
+        executable='relativeForce',
         output='screen'
     )
 
@@ -42,11 +60,23 @@ def generate_launch_description():
         executable= 'imageHandler',
         output='screen'
     )
+    
+    stat_tf = Node(
+            package='tf2_ros',
+            executable='static_transform_publisher',
+            arguments=['0', '0', '0', '0', '0', '0', '1', 'world', 'base_footprint'],
+            name='static_tf_pub_world_to_base_footprint'
+        )
+    
 
     return LaunchDescription([
         rsp,
         gazebo,
         spawn_entity,
-        movement_script
-        #imageHandler_script
+        applyForce_script,
+        #controller_script,
+        fakeController_script,
+        #imageHandler_script,
+        stat_tf,
+        relativeForce_script
     ])

@@ -1,3 +1,5 @@
+#self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
+
 # def write_to_twist(self,ang_vel):
 #     move_cmd = Twist()
 #     move_cmd.linear.x = 0.5
@@ -14,5 +16,22 @@
 # self.received_value = 0.00
 # self.out=0 
 
-#self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
 
+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
+
+
+<!-- root link, on the ground just below the model origin -->
+<link name="base_footprint">
+ <visual>
+    <origin xyz="0 0 0" rpy="0 0 0" />
+    <geometry>
+      <box size="0.001 0.001 0.001" />
+    </geometry>
+  </visual>
+</link>
+
+<joint name="base_link_joint" type="fixed">
+  <origin xyz="0 0 2" rpy="0 0 0" />
+  <parent link="base_footprint"/>
+  <child link="base_link" />
+</joint>
