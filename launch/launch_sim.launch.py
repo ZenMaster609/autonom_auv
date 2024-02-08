@@ -67,6 +67,12 @@ def generate_launch_description():
         executable= 'movement',
         output='screen'
     )
+
+    upDown_script = Node(
+        package = package_name,
+        executable= 'upDown',
+        output='screen'
+    )
     
  
     
@@ -76,9 +82,10 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         movement_script,
+        upDown_script,
         imageHandler_script
+        #fakeController_script,
         #applyForce_script,
         #controller_script,
-        #fakeController_script,
         #relativeForce_script
     ])
