@@ -113,7 +113,6 @@ class ImageProcessor(Node):
            self.ids_list.append(ids[0][0])
             
 
-
 def main(args=None):
     rclpy.init(args=args)
     image_processor = ImageProcessor()
