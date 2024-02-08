@@ -18,7 +18,7 @@ class Movement(Node):
 
     def send_movement(self,ang_vel):
         move_cmd = Twist()
-        move_cmd.linear.x = 0.2
+        move_cmd.linear.x = 0.4
         move_cmd.angular.z =ang_vel
         self.publisher_.publish(move_cmd)
             
