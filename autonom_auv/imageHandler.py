@@ -28,7 +28,7 @@ class ImageProcessor(Node):
 
     def listener_callback(self, data):
         self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        self.contour_image=self.cv_image.copy()
+        self.contour_image = self.cv_image.copy()
         self.Myimage= np.zeros((1080,1920,3),np.uint8)
         self.read_AruCo()
         self.color_filter()
@@ -59,11 +59,11 @@ class ImageProcessor(Node):
         contours, _ = cv2.findContours(self.maskM, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         for cnt in range(len(contours)):
             #if len(contours[cnt])>1:
-            rect = cv2.minAreaRect(contours[cnt])
-            box = np.intp(cv2.boxPoints(rect))
-            self.box_list.append(box)
-            self.boxl_y.append(box[:,1])
-            cv2.drawContours(self.Myimage,[box],0,(255,255,255),-1)
+                rect = cv2.minAreaRect(contours[cnt])
+                box = np.intp(cv2.boxPoints(rect))
+                self.box_list.append(box)
+                self.boxl_y.append(box[:,1])
+                cv2.drawContours(self.Myimage,[box],0,(255,255,255),-1)
 
 #Finds the box neares the camera 
     def find_closest_box(self):
@@ -102,7 +102,7 @@ class ImageProcessor(Node):
     def find_angle_vel(self):
         offsett_x=1920/2-self.cX
         angle_vel=(offsett_x/(1920/2))
-        self.publish_float(angle_vel)
+        #self.publish_float(angle_vel)
 
     
     def read_AruCo(self):

@@ -18,7 +18,7 @@ def generate_launch_description():
                 )]), launch_arguments={'use_sim_time': 'true'}.items()
     )
     
-    world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'empty.world')
+    world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'valve.world')
 
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
@@ -67,6 +67,12 @@ def generate_launch_description():
         executable= 'movement',
         output='screen'
     )
+
+    upDown_script = Node(
+        package = package_name,
+        executable= 'upDown',
+        output='screen'
+    )
     
  
     
@@ -75,10 +81,11 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        movement_script,
-        imageHandler_script
+        #movement_script,
+        #imageHandler_script,
+        #upDown_script,
+        #fakeController_script
         #applyForce_script,
         #controller_script,
-        #fakeController_script,
         #relativeForce_script
     ])

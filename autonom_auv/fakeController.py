@@ -8,13 +8,14 @@ import time
 class FakeControllerNode(Node):
     def __init__(self):
         super().__init__('fakeController')
-        self.publisher_ = self.create_publisher(Twist, '/desired_vel_cmd', 10)
+        #self.publisher_ = self.create_publisher(Twist, '/desired_vel_cmd', 10)
+        self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         time.sleep(5)
-        self.publish_fake_movement(zt=1000.0)
-        time.sleep(2)
-        self.publish_fake_movement(zt=0.0)
-        time.sleep(2)
-        self.publish_fake_movement(x=1000.0)
+        self.publish_fake_movement(z=1.0)
+        time.sleep(5)
+        self.publish_fake_movement(z=0.5)
+        time.sleep(5)
+        self.publish_fake_movement(z=-1.0)
 
 
     def publish_fake_movement(self, x=0.0, y=0.0, z=0.0, xt=0.0, yt=0.0, zt=0.0):

@@ -1,0 +1,30 @@
+<?xml version="1.0" ?>
+<sdf version="1.5">
+  <world name="default">
+  <gravity>0 0 0</gravity>
+
+      <include>
+        <uri>model://sun</uri>
+      </include>
+
+      <include>
+        <uri>model://background</uri>
+      </include>
+
+      <include>
+        <uri>model://valve</uri>
+          <pose>2 0 0 0 0 0</pose> 
+      <name>valve</name>
+      </include>
+
+      
+        <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
+          <ros>
+            <namespace>/demo</namespace>
+            <argument>model_states:=model_states_demo</argument>
+          </ros>
+          <update_rate>1.0</update_rate>
+        </plugin>
+
+  </world>
+</sdf>

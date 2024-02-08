@@ -35,6 +35,7 @@ setup(
             'controller = autonom_auv.controller:main',
             'fakeController = autonom_auv.fakeController:main',
             'relativeForce = autonom_auv.relativeForce:main',
+            'upDown = autonom_auv.upDown:main',
         ],
     },
 )
