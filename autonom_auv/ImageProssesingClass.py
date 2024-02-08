@@ -60,6 +60,7 @@ class image_prosessing:
 
     @staticmethod
     def makes2x2_image(image1,image2,image3,image4):
+        "Stacks the images given in a 2x2"
         image_show = np.hstack((image1,image2,))
         image_show2 = np.hstack((image3,image4))
         image_show = np.vstack((image_show,image_show2))
@@ -69,6 +70,7 @@ class image_prosessing:
 
     @staticmethod
     def read_AruCo(image_in,Ids_list):
+        "Takes the image and reads the aruco code and adds the Id to the given list"
         gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
@@ -77,6 +79,7 @@ class image_prosessing:
         return Ids_list
 
     def filtered_Ids_list(Ids_list):
+        "Filter the list and gives back al ist without dublicateds"
         filtered_list=[]
         for i in range(len(list)):
             if filtered_list.count(list[i]) < 1 and list.count(list[i])>10:
