@@ -14,6 +14,7 @@ class Movement(Node):
     def ang_vel_callback(self,msg):
         angular_velocity = round(msg.data,3)
         self.send_movement(angular_velocity)
+        print(angular_velocity)
 
 
     def send_movement(self,ang_vel):

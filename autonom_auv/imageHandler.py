@@ -1,6 +1,7 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
+from rosgraph_msgs.msg import Clock 
 from cv_bridge import CvBridge
 import cv2
 import os
@@ -9,6 +10,8 @@ import cv2.aruco as aruco
 from std_msgs.msg import Float32
 import numpy as np
 from .ImageProssesingClass import image_prosessing
+from .ControllerClass import Controllers
+from geometry_msgs.msg import Twist
 
 
 class ImageProcessor(Node):
@@ -17,14 +20,15 @@ class ImageProcessor(Node):
         self.subscription = self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.subscription  # Prevent unused variable warning
         self.bridge = CvBridge()
-        self.publisher_ = self.create_publisher(Float32, '/angular_velocity', 10)
-  
+        self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
 
-    def publish_float(self, value):
-        msg = Float32()
-        msg.data = value
-        self.publisher_.publish(msg)
-        #self.get_logger().info(f'Publishing: {msg.data}')
+
+    def send_movement(self,ang_vel):
+        move_cmd = Twist()
+        move_cmd.linear.x = 0.4
+        move_cmd.angular.z =ang_vel
+        self.publisher_.publish(move_cmd)
+       
 
     def listener_callback(self, data):
         cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
@@ -36,26 +40,19 @@ class ImageProcessor(Node):
         maskM = cv2.line(maskM,(0,600),(dimensions[1],600),(0,0,0),10)
         image_edit,Box_Image,Box_list = image_prosessing.make_boxes(maskM,image_edit)
        
-        The_box =image_prosessing.find_the_box(Box_list)
+        The_box = image_prosessing.find_the_box(Box_list)
         
         image_with_dot,Center_X,Center_Y = image_prosessing.Draw_Center(image_edit,The_box)
        
         maskM=cv2.cvtColor(maskM,cv2.COLOR_BAYER_BG2BGR)
-        image_show=image_prosessing.makes2x2_image(cv_image,maskM,Box_Image,image_with_dot)
-        self.find_angle_vel(Center_X)
+        image_show=image_prosessing.stack_images(cv_image,maskM,Box_Image,image_with_dot)
+        Offsett_x = Controllers.calculate_parameters(Center_X,dimensions)
+        angle_vel=(Offsett_x/(1920/2))
+        self.send_movement(angle_vel)
 
         cv2.imshow("window",image_show)
         cv2.waitKey(1)
         
-        
-
-
-    def find_angle_vel(self,Center_X):
-        offsett_x=1920/2-Center_X
-        angle_vel=(offsett_x/(1920/2))
-        self.publish_float(angle_vel)           
-
-
 def main(args=None):
     rclpy.init(args=args)
     image_processor = ImageProcessor()

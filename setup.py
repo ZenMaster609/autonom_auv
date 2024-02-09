@@ -16,7 +16,7 @@ setup(
         (os.path.join('share', package_name, 'launch'), glob(os.path.join('launch', '*launch.[pxy][yma]*'))),
         (os.path.join('share', package_name, 'description'), glob('description/*')),
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
-        (os.path.join('share', package_name, 'pictures'), glob('pictures/*')),
+        (os.path.join('share', package_name, 'photos'), glob('photos/*')),
         (os.path.join('share', package_name, 'config'), glob('config/*')),
     ],
 
@@ -32,6 +32,7 @@ setup(
             'movement = autonom_auv.movement:main',
             'applyForce = autonom_auv.applyForce:main',
             'imageHandler = autonom_auv.imageHandler:main',
+            'visualHandler = autonom_auv.visualHandler:main',
             'controller = autonom_auv.controller:main',
             'fakeController = autonom_auv.fakeController:main',
             'relativeForce = autonom_auv.relativeForce:main',

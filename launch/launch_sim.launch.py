@@ -81,9 +81,9 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        movement_script,
         upDown_script,
         imageHandler_script
+        #movement_script,
         #fakeController_script,
         #applyForce_script,
         #controller_script,

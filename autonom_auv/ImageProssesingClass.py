@@ -63,13 +63,29 @@ class image_prosessing:
             cv2.circle(Image_inn,(Center_X,Center_Y),10,(0,0,255),-1)
             return Image_inn,Center_X,Center_Y
         else: return Image_inn,990,600
+
     @staticmethod
-    def makes2x2_image(image1,image2,image3,image4):
+    def stack_images(amount,image1=None,image2=None,image3=None,image4=None,image5=None,image6=None):
         "Stacks the images given in a 2x2"
+        s = 0.6
         image_show = np.hstack((image1,image2,))
-        image_show2 = np.hstack((image3,image4))
-        image_show = np.vstack((image_show,image_show2))
-        image_show = cv2.resize(image_show, (0, 0), fx = 0.4, fy = 0.4)
+        if amount == 2:
+            image_show = cv2.resize(image_show, (0, 0), s, s)
+        elif amount == 3: 
+            image_show = np.vstack((image1,image2,image3))
+            image_show = cv2.resize(image_show, (0, 0), s, s)
+        elif amount == 4: 
+            image_show2 = np.hstack((image3,image4))
+            image_show = np.vstack((image_show,image_show2))
+            image_show = cv2.resize(image_show, (0, 0), s, s)
+        elif amount == 5: 
+            image_show = np.vstack((image1,image2,image3,image4,image5))
+            image_show = cv2.resize(image_show, (0, 0), s, s)
+        elif amount == 6: 
+            image_show2 = np.hstack((image3,image4))
+            image_show3 = np.hstack((image5,image6))
+            image_show = np.vstack((image_show,image_show2,image_show3))
+            image_show = cv2.resize(image_show, (0, 0), s, s)
         return image_show
 
 
@@ -90,3 +106,5 @@ class image_prosessing:
             if filtered_list.count(list[i]) < 1 and list.count(list[i])>10:
                     filtered_list.append(list[i])
         return filtered_list
+
+
