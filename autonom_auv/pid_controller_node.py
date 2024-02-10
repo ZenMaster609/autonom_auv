@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 
-class Controllers: 
+class PidControllerNode: 
 
     def calculate_parameters(Center_X,dimensions):
          Offset_x= dimensions[1]/2-Center_X     

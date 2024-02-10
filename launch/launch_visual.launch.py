@@ -15,7 +15,7 @@ def generate_launch_description():
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','rsp.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true'}.items()
+                )]), launch_arguments={'use_sim_time': 'true', 'log_level': 'WARN'}.items()
     )
     
     world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'valve.world')
@@ -23,60 +23,29 @@ def generate_launch_description():
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
-                    launch_arguments={'world': world_file_path}.items()
+                    launch_arguments={'world': world_file_path, 'log_level': 'WARN'}.items()
              )
 
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
-                        arguments=['-topic', 'robot_description',
-                                   '-entity', 'my_bot'],
-                        output='screen')
+                        arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '2', '--ros-args', '--log-level', 'WARN'], output='screen')
 
-    applyForce_script = Node(
-        package=package_name,
-        executable='applyForce',
-        output='screen'
-    )
-
-    controller_script = Node(
-        package=package_name,
-        executable='controller',
-        output='screen'
-    )
-
-    fakeController_script = Node(
-        package=package_name,
-        executable='fakeController',
-        output='screen'
-    )
-
-    relativeForce_script = Node(
-        package=package_name,
-        executable='relativeForce',
-        output='screen'
-    )
-
-    imageHandler_script = Node(
+    fake_controller_node = Node(
         package = package_name,
-        executable= 'imageHandler',
+        executable= 'fake_controller_node',
         output='screen'
     )
 
-    visualHandler_script = Node(
+    up_down_node = Node(
         package = package_name,
-        executable= 'visualHandler',
+        executable= 'up_down_node',
         output='screen'
     )
 
-    movement_script = Node(
+    valve_image_node = Node(
         package = package_name,
-        executable= 'movement',
-        output='screen'
-    )
-
-    upDown_script = Node(
-        package = package_name,
-        executable= 'upDown',
+        executable= 'valve_image_node',
+        parameters=[{'save_images': True}],
         output='screen'
     )
     
@@ -87,11 +56,6 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        upDown_script,
-        visualHandler_script
-        #movement_script,
-        #fakeController_script,
-        #applyForce_script,
-        #controller_script,
-        #relativeForce_script
+        valve_image_node,
+        #up_down_node
     ])

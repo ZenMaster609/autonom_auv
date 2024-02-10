@@ -4,7 +4,7 @@ import cv2.aruco as aruco
 import numpy as np
 
 
-class image_prosessing: 
+class PipelineImageMethods: 
 
     #Looks for the color range and makes a black and white picture 
     @staticmethod 

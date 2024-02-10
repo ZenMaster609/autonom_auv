@@ -29,63 +29,50 @@ def generate_launch_description():
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'my_bot'],
+                                   '-entity', 'my_bot', '-z', '2'],
                         output='screen')
 
-    applyForce_script = Node(
-        package=package_name,
-        executable='applyForce',
-        output='screen'
-    )
+   
 
-    controller_script = Node(
-        package=package_name,
-        executable='controller',
-        output='screen'
-    )
-
-    fakeController_script = Node(
-        package=package_name,
-        executable='fakeController',
-        output='screen'
-    )
-
-    relativeForce_script = Node(
-        package=package_name,
-        executable='relativeForce',
-        output='screen'
-    )
-
-    imageHandler_script = Node(
+    fake_controller_node = Node(
         package = package_name,
-        executable= 'imageHandler',
+        executable= 'fake_controller_node',
         output='screen'
     )
 
-    movement_script = Node(
+    up_down_node = Node(
         package = package_name,
-        executable= 'movement',
+        executable= 'up_down_node',
         output='screen'
     )
 
-    upDown_script = Node(
+    valve_image_node = Node(
         package = package_name,
-        executable= 'upDown',
+        executable= 'valve_image_node',
+        parameters=[{'save_images': True}],
         output='screen'
     )
+
+    pipeline_image_node = Node(
+        package = package_name,
+        executable= 'valve_image_node',
+        parameters=[{'save_images': True}],
+        output='screen'
+    )
+    
+
+    movement_node = Node(
+        package = package_name,
+        executable= 'movement_node',
+        output='screen'
+    )
+
     
  
-    
-
     return LaunchDescription([
         rsp,
         gazebo,
         spawn_entity,
-        upDown_script,
-        imageHandler_script
-        #movement_script,
-        #fakeController_script,
-        #applyForce_script,
-        #controller_script,
-        #relativeForce_script
+        movement_node,
+        pipeline_image_node
     ])

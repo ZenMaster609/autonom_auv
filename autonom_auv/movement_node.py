@@ -3,12 +3,12 @@ from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
 
-class Movement(Node):
+class MovementNode(Node):
     def __init__(self):
-        super().__init__('movement')
+        super().__init__('movement_node')
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.subscription = self.create_subscription(Float32,'/angular_velocity', self.ang_vel_callback,10)
-        self.subscription  # Prevent unused variable warning
+        self.create_subscription(Float32,'/angular_velocity', self.ang_vel_callback,10)
+ 
         
 
     def ang_vel_callback(self,msg):
@@ -27,7 +27,7 @@ class Movement(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    movement = Movement()
+    movement = MovementNode()
     rclpy.spin(movement)
 
     # Destroy the node explicitly

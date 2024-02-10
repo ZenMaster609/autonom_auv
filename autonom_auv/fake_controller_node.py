@@ -2,12 +2,12 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Vector3
-from .mathClasses import vectorCalculator
+from ..Old.mathClasses import vectorCalculator
 import time
 
 class FakeControllerNode(Node):
     def __init__(self):
-        super().__init__('fakeController')
+        super().__init__('fake_controller')
         #self.publisher_ = self.create_publisher(Twist, '/desired_vel_cmd', 10)
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         time.sleep(5)
@@ -32,9 +32,9 @@ class FakeControllerNode(Node):
     
 def main(args=None):
     rclpy.init(args=args)
-    fakeController = FakeControllerNode()
-    rclpy.spin(fakeController)
-    fakeController.destroy_node()
+    node = FakeControllerNode()
+    rclpy.spin(node)
+    node.destroy_node()
     rclpy.shutdown()
 
 if __name__ == '__main__':

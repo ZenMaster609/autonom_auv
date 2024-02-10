@@ -5,9 +5,9 @@ from nav_msgs.msg import Odometry
 from gazebo_msgs.srv import SetEntityState
 
 
-class CmdVelListener(Node):
+class UpDownNode(Node):
     def __init__(self):
-        super().__init__('cmdVelListener')
+        super().__init__('up_down_node')
         self.last_linear_z = None
         self.current_x = None
         self.current_y = None
@@ -59,7 +59,7 @@ class CmdVelListener(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = CmdVelListener()
+    node = UpDownNode()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()
