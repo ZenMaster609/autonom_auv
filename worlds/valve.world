@@ -9,14 +9,44 @@
 
       <include>
         <uri>model://background</uri>
+        <name>water1</name>
+        <pose>10 0 0 0 1.57 0</pose> 
+      </include>
+
+      <include>
+        <uri>model://background</uri>
+        <name>water2</name>
       </include>
 
       <include>
         <uri>model://valve</uri>
-          <pose>5 0 0 1.57 0 0</pose> 
+          <pose>3 0 0 1.57 0 0</pose> 
       <name>valve</name>
       </include>
 
+      <include>
+        <uri>model://saruco0</uri>
+          <pose>2.352033 -0.903928 0.772462 0 0 0</pose>
+      <name>saruco0</name>
+      </include>
+
+      <include>
+        <uri>model://saruco1</uri>
+          <pose>3.590819 -0.903928 1.232259 0 0 0</pose>
+      <name>saruco1</name>
+      </include>
+
+      <include>
+        <uri>model://saruco2</uri>
+          <pose>3.643968 -0.283789 0.982318 0 0 0</pose>
+      <name>saruco2</name>
+      </include>
+
+      <include>
+        <uri>model://saruco3</uri>
+          <pose>2.882864 0 0.916771 0 1.57 0</pose>
+      <name>saruco3</name>
+      </include>
       
         <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">
           <ros>

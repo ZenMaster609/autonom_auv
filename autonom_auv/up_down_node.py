@@ -13,8 +13,8 @@ class UpDownNode(Node):
         self.current_y = None
         self.current_orientation = None
 
-        self.odom_subscription = self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
-        self.cmd_vel_subscription = self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
+        self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
+        self.create_subscription(Twist, '/cmd_vel', self.cmd_vel_callback, 10)
         
         self.set_state_client = self.create_client(SetEntityState, '/demo/set_entity_state')
         while not self.set_state_client.wait_for_service(timeout_sec=1.0):

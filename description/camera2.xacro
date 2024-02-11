@@ -40,7 +40,7 @@
         <sensor name="camera2" type="camera">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>true</visualize>
-            <update_rate>4</update_rate>
+            <update_rate>2</update_rate>
             <camera>
                 <horizontal_fov>2.61799</horizontal_fov>
                 <image>
@@ -50,7 +50,7 @@
                 </image>
                 <clip>
                     <near>0.1</near>
-                    <far>10</far>
+                    <far>20</far>
                 </clip>
             </camera>
             <plugin name="camera_controller2" filename="libgazebo_ros_camera.so">

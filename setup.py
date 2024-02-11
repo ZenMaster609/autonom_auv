@@ -31,7 +31,7 @@ setup(
         'console_scripts': [
             'movement_node = autonom_auv.movement_node:main',
             'pipeline_image_node = autonom_auv.pipeline_image_node:main',
-            'valve_image_node = autonom_auv.valve_image_node:main',
+            'front_cam_node = autonom_auv.front_cam_node:main',
             'fake_controller_node = autonom_auv.fake_controller_node:main',
             'up_down_node = autonom_auv.up_down_node:main',
         ],

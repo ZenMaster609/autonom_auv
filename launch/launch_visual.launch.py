@@ -28,7 +28,7 @@ def generate_launch_description():
 
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
-                        arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '2', '--ros-args', '--log-level', 'WARN'], output='screen')
+                        arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '1', '--ros-args', '--log-level', 'WARN'], output='screen')
 
     fake_controller_node = Node(
         package = package_name,
@@ -42,9 +42,9 @@ def generate_launch_description():
         output='screen'
     )
 
-    valve_image_node = Node(
+    front_cam_node = Node(
         package = package_name,
-        executable= 'valve_image_node',
+        executable= 'front_cam_node',
         parameters=[{'save_images': True}],
         output='screen'
     )
@@ -56,6 +56,6 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        valve_image_node,
+        front_cam_node,
         #up_down_node
     ])

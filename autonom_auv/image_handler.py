@@ -1,20 +1,50 @@
-from autonom_auv.autonom_auv.pipeline_image_methods import ImageMethods
+try:
+    from .image_methods import ImageMethods  # Attempt relative import for package context
+except ImportError:
+    from image_methods import ImageMethods  # Fallback to direct import for standalone execution
+
 import cv2
+import numpy as np
+import os
+from ament_index_python.packages import get_package_share_directory
+import time
 
-# class ImageHandler:
+
+class ImageHandler:
+    def __init__(self, save_freq):
+        self.save_freq = save_freq
+        self.feed_image = None
+        self.hsv_image = None
+        self.image_count = 0
+        self.bench_distance = None
+        self.valves = None
+        self.mode = None
+        self.orientation = None
+
+    def find_bench(self):
+        hsv_lower = [0, 0, 0]
+        hsv_upper = [40, 200, 170]
+        image_edit = self.feed_image.copy()
+        hsv_image = ImageMethods.color_filter(image_edit , hsv_lower, hsv_upper)
+        show_hsv = ImageMethods.fix_hsv(hsv_image)
+        boxes, closed_image = ImageMethods.make_boxes2(hsv_image, image_edit, 1, False)
+        show_closed = ImageMethods.fix_hsv(closed_image)
+        biggest_box = ImageMethods.find_biggest_box(image_edit, boxes, True)
+        center_image, cx, cy = ImageMethods.Draw_Center(image_edit, biggest_box)
+        stacked = ImageMethods.stack_images([show_hsv, show_closed, image_edit, center_image])
+        ImageMethods.showImage(stacked)
+        
 
 
 
-#     def cam2_callback(self, data):
-#             photos_path = os.path.join(get_package_share_directory('autonom_auv'), 'photos', f"cam2_{time.time()}.jpg")
-#             cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-#             image_edit =cv_image.copy()
-#             dimensions = cv_image.shape
-#             self.pub_image2 = image_edit
-#             if self.save_images:
-#                 self.imgcount += 1
-#                 if self.imgcount > 7:
-#                     self.imgcount = 0
-#                     cv2.imwrite(photos_path, cv_image)
-#             cv2.imshow("window", image_edit)
-#             cv2.waitKey(1)
+
+
+
+
+
+
+
+
+
+
+

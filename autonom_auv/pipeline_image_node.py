@@ -9,7 +9,7 @@ from ament_index_python.packages import get_package_share_directory
 import cv2.aruco as aruco
 from std_msgs.msg import Float32
 import numpy as np
-from .pipeline_image_methods import PipelineImageMethods
+from .image_methods import ImageMethods
 from .pid_controller_node import PidControllerNode
 from geometry_msgs.msg import Twist
 
@@ -17,8 +17,7 @@ from geometry_msgs.msg import Twist
 class PipelineImageNode(Node):
     def __init__(self):
         super().__init__('image_processor') 
-        self.subscription = self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
-        self.subscription  # Prevent unused variable warning
+        self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
 
@@ -35,17 +34,17 @@ class PipelineImageNode(Node):
         image_edit =cv_image.copy()
         dimensions = cv_image.shape
        
-        maskM = PipelineImageMethods.color_filter(cv_image,30,114,114,30,255,238)
+        maskM = ImageMethods.color_filter(cv_image,[30,114,114],[30,255,238])
         
         maskM = cv2.line(maskM,(0,600),(dimensions[1],600),(0,0,0),10)
-        image_edit,Box_Image,Box_list = PipelineImageMethods.make_boxes(maskM,image_edit)
+        image_edit,Box_Image,Box_list = ImageMethods.make_boxes(maskM,image_edit)
        
-        The_box = PipelineImageMethods.find_the_box(Box_list)
+        The_box = ImageMethods.find_the_box(Box_list)
         
-        image_with_dot,Center_X,Center_Y = PipelineImageMethods.Draw_Center(image_edit,The_box)
+        image_with_dot,Center_X,Center_Y = ImageMethods.Draw_Center(image_edit,The_box)
        
         maskM=cv2.cvtColor(maskM,cv2.COLOR_BAYER_BG2BGR)
-        image_show=PipelineImageMethods.stack_images(cv_image,maskM,Box_Image,image_with_dot)
+        image_show=ImageMethods.stack_images(cv_image,maskM,Box_Image,image_with_dot)
         Offsett_x = PidControllerNode.calculate_parameters(Center_X,dimensions)
         angle_vel=(Offsett_x/(1920/2))
         self.send_movement(angle_vel)
