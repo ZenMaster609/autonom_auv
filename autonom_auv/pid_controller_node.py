@@ -1,15 +1,36 @@
-import cv2 
-import cv2.aruco as aruco
 import numpy as np
 import time
 
 
 class PidControllerNode: 
-
-    def calculate_parameters(Center_X,dimensions):
-         Offset_x= dimensions[1]/2-Center_X     
+     def __init__(self,Pre_offset=None,Pre_time=None,Pre_I=None,Pre_D=None):
+            self.Pre_offset = Pre_offset
+            self.Pre_time = Pre_time
+            self.Pre_I = Pre_I
+            self.Pre_D = Pre_D
+    
+     def calculate_parameters(Center_X,dimensions):
+         Offset_x = dimensions[1]/2-Center_X     
          return Offset_x 
+    
+    
+     def PID_controller(self,Offset,P=0,I=0,D=0):
+          time_now = time.time()
+          if self.Pre_time is None:
+               Output = P*Offset
+               u_I = 0
+               u_D = 0
+          else:
+               u_I=self.Pre_I+I*(Offset+self.Pre_offset)/2
 
-    #def PID_controller(Offset_x,P=0,I=0,D=0):
-        
+               u_D = D*(Offset-self.Pre_offset)
+
+          self.Pre_offset = Offset
+          self.Pre_time = time_now
+          self.Pre_I = u_I
+          self.Pre_D = u_D
+
+
+          return Output
+
     

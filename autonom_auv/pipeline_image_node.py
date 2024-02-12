@@ -20,6 +20,7 @@ class PipelineImageNode(Node):
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.Ids_list= []
 
 
     def send_movement(self,ang_vel):
@@ -37,20 +38,24 @@ class PipelineImageNode(Node):
         maskM = ImageMethods.color_filter(cv_image,[30,114,114],[30,255,238])
         
         maskM = cv2.line(maskM,(0,600),(dimensions[1],600),(0,0,0),10)
-        image_edit,Box_Image,Box_list = ImageMethods.make_boxes(maskM,image_edit)
+        Box_list = ImageMethods.find_boxes(maskM, image_edit, 1, True)
        
         The_box = ImageMethods.find_the_box(Box_list)
         
-        image_with_dot,Center_X,Center_Y = ImageMethods.Draw_Center(image_edit,The_box)
+        Center_X,Center_Y = ImageMethods.find_Center(image_edit,The_box, True)
        
         maskM=cv2.cvtColor(maskM,cv2.COLOR_BAYER_BG2BGR)
-        image_show=ImageMethods.stack_images(cv_image,maskM,Box_Image,image_with_dot)
+        images=[cv_image,image_edit]
+        image_show=ImageMethods.stack_images(images,0.4)
         Offsett_x = PidControllerNode.calculate_parameters(Center_X,dimensions)
-        angle_vel=(Offsett_x/(1920/2))
+        angle_vel=PidControllerNode.PID_controller(Offsett_x,(2/1920))
         self.send_movement(angle_vel)
-
         cv2.imshow("window",image_show)
         cv2.waitKey(1)
+        self.Ids_list= ImageMethods.read_AruCo(cv_image,self.Ids_list)
+
+
+
         
 def main(args=None):
     rclpy.init(args=args)

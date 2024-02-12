@@ -74,34 +74,16 @@ class ImageMethods:
         maskM = cv2.medianBlur(mask, 5)
         return maskM 
 
-    @staticmethod
-    def make_boxes(Black_White_Image, Original_image):
-        """
-        Takes in a black and white image and the original image, returns the original image with drawn boxes, 
-        an image with box approximation, and a list of boxes that have an area greater than min_box_size.
-        """
-        dimensions = Black_White_Image.shape
-        Box_Image = np.zeros((dimensions[0], dimensions[1], 3), np.uint8)
-        Box_list = []
-        contours, _ = cv2.findContours(Black_White_Image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if contours is not None:
-            for cnt in contours:
-                rect = cv2.minAreaRect(cnt)
-                Box = np.intp(cv2.boxPoints(rect))
-                Box_list.append(Box)
-                cv2.drawContours(Box_Image, [Box], 0, (255, 255, 255), -1)
-                cv2.drawContours(Original_image, [Box], -1, (0, 0, 255), thickness=2)
-        return Original_image, Box_Image, Box_list
+
     
     @staticmethod
-    def make_boxes2(hsv_image, Original_image, min_box_size, draw:bool):
+    def find_boxes(hsv_image, Original_image, min_box_size, draw:bool):
         """
         Takes in a black and white image and the original image, returns the original image with drawn boxes, 
         an image with box approximation, and a list of boxes that have an area greater than min_box_size.
         """
         box_list = []
-        closed_image = ImageMethods.close_image(hsv_image, 5)
-        contours, _ = cv2.findContours(closed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours is not None:
             for cnt in contours:
                 rect = cv2.minAreaRect(cnt)
@@ -111,8 +93,30 @@ class ImageMethods:
                     box_list.append(box)
                     if draw:
                         cv2.drawContours(Original_image, [box], -1, (0, 0, 255), thickness=2)
-        return box_list, closed_image
+        return box_list
 
+    @staticmethod
+    def make_stricter_boxes(hsv_image, Original_image, draw:bool):
+        contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        best_rectangle = None
+        max_area = 0
+        for cnt in contours:
+            # Approximate the contour to a polygon
+            epsilon = 0.05 * cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, epsilon, True)
+            # Check for rectangular shape (4 sides) and aspect ratio
+            if len(approx) == 4:
+                x, y, w, h = cv2.boundingRect(approx)
+                aspect_ratio = float(w) / h
+                area = cv2.contourArea(approx)
+                # You can adjust the aspect ratio range according to the expected shape
+                if 2.0 < aspect_ratio < 4 and area > max_area:
+                    best_rectangle = approx
+                    max_area = area
+        if best_rectangle is not None and draw:
+            cv2.drawContours(Original_image, [best_rectangle], -1, (0, 255, 0), thickness=3)
+        return best_rectangle   
+    
     @staticmethod
     def find_biggest_box(image, boxes:list, draw:bool):
         max_area = 0
@@ -146,15 +150,15 @@ class ImageMethods:
         
 
     @staticmethod
-    def Draw_Center(Image_inn,The_box): 
-        "Draw a dot in the center of the bo, return Center cordinates"  
+    def find_Center(Image_inn,The_box, draw:bool): 
+        "Draw a dot in the center of the box, return Center cordinates"  
         if The_box is not None:
             center=((The_box[0]+The_box[2])/2)
             Center_X=int(center[0])
             Center_Y=int(center[1])
             cv2.circle(Image_inn,(Center_X,Center_Y),10,(0,0,255),-1)
-            return Image_inn,Center_X,Center_Y
-        else: return Image_inn,990,600
+            return Center_X,Center_Y
+        else: return 960,600
 
 
 
@@ -166,6 +170,7 @@ class ImageMethods:
         gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
+
         if ids is not None and len(ids) > 0:
             Ids_list.append(ids[0][0])
         return Ids_list
