@@ -26,7 +26,7 @@ class FrontCamNode(Node):
         cam_feed = self.bridge.imgmsg_to_cv2(data, "bgr8")
         self.handler.feed_image = cam_feed
         #DynamicDisplay.find_hsv(cam_feed)
-        self.handler.find_bench(True)
+        self.handler.find_bench_info
 
 
 

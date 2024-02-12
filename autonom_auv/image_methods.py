@@ -95,6 +95,7 @@ class ImageMethods:
                         cv2.drawContours(Original_image, [box], -1, (0, 0, 255), thickness=2)
         return box_list
 
+
     @staticmethod
     def make_stricter_boxes(hsv_image, Original_image, draw:bool):
         contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -117,6 +118,8 @@ class ImageMethods:
             cv2.drawContours(Original_image, [best_rectangle], -1, (0, 255, 0), thickness=3)
         return best_rectangle   
     
+
+        
     @staticmethod
     def find_biggest_box(image, boxes:list, draw:bool):
         max_area = 0
@@ -147,7 +150,37 @@ class ImageMethods:
             box=Box_list[box_index]
             return box 
         else: return None
-        
+
+    @staticmethod
+    def get_box_info(box):
+        """
+        Takes a box as an argument and returns the positions of each of its four corners.
+        Parameters:
+        - box: A NumPy array of shape (4, 2) representing the box's four corners.
+        Returns:
+        - A dictionary with keys 'top_left', 'top_right', 'bottom_right', 'bottom_left'
+        corresponding to the coordinates of each corner.
+        """
+        area = cv2.contourArea(box)
+        # Sort the box points based on their x-coordinates (helps in identifying left/right)
+        sorted_box = sorted(box, key=lambda x: x[0])
+        # Split the sorted points into leftmost and rightmost
+        left_points = sorted_box[:2]
+        right_points = sorted_box[2:]
+        # Sort the left_points and right_points by their y-coordinates to separate top/bottom
+        top_left, bottom_left = sorted(left_points, key=lambda x: x[1])
+        top_right, bottom_right = sorted(right_points, key=lambda x: x[1])
+        # Return the corners in a structured dictionary
+        corners = {
+            'top_left': tuple(top_left),
+            'top_right': tuple(top_right),
+            'bottom_right': tuple(bottom_right),
+            'bottom_left': tuple(bottom_left)
+        }
+        return corners, area
+
+
+
 
     @staticmethod
     def find_Center(Image_inn,The_box, draw:bool): 
