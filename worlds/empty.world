@@ -49,14 +49,32 @@
 
       <include>
       <uri>model://yellow_pipe</uri>
-        <pose>8.1 8.1 0 1.5708 0 2.3562</pose> 
+        <pose>9 6 0 1.5708 0 1.5708</pose> 
       <name>yellow_pipe_3</name>
       </include>
 
       <include>
       <uri>model://aruco2</uri>
-      <pose>8.1 8.1 0.25 2.3562 1.5708 0</pose> 
+      <pose>8.1 6.25 0.25 1.5708 1.5708 0</pose> 
       <name>aruco_2</name>
+      </include>
+
+      <include>
+      <uri>model://corner</uri>
+        <pose>12 6 0 0 0 0</pose> 
+      <name>corner_3</name>
+      </include>
+
+      <include>
+      <uri>model://yellow_pipe</uri>
+        <pose>14.1 8.09 0 1.5708 0 2.3562</pose> 
+      <name>yellow_pipe_4</name>
+      </include>
+
+      <include>
+      <uri>model://aruco4</uri>
+      <pose>13.34 7.32 0.25 1.5708 1.5708 2.3562</pose> 
+      <name>aruco_5</name>
       </include>
 
         <plugin name="gazebo_ros_state" filename="libgazebo_ros_state.so">

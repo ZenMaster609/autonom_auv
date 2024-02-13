@@ -14,12 +14,11 @@ class MovementNode(Node):
     def ang_vel_callback(self,msg):
         angular_velocity = round(msg.data,3)
         self.send_movement(angular_velocity)
-        print(angular_velocity)
 
 
     def send_movement(self,ang_vel):
         move_cmd = Twist()
-        move_cmd.linear.x = 0.4
+        move_cmd.linear.x = 0.0
         move_cmd.angular.z =ang_vel
         self.publisher_.publish(move_cmd)
             

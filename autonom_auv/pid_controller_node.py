@@ -9,8 +9,9 @@ class PidControllerNode:
             self.Pre_I = Pre_I
             self.Pre_D = Pre_D
     
-     def calculate_parameters(Center_X,dimensions):
-         Offset_x = dimensions[1]/2-Center_X     
+     @staticmethod
+     def calculate_parameters(Center_X,set_point):
+         Offset_x = set_point-Center_X     
          return Offset_x 
     
     
@@ -21,9 +22,9 @@ class PidControllerNode:
                u_I = 0
                u_D = 0
           else:
-               u_I=self.Pre_I+I*(Offset+self.Pre_offset)/2
-
+               u_I=self.Pre_I+I*Offset*(time_now-self.Pre_time)
                u_D = D*(Offset-self.Pre_offset)
+               Output = P*Offset+u_I+u_D
 
           self.Pre_offset = Offset
           self.Pre_time = time_now

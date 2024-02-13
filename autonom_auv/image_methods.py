@@ -194,8 +194,59 @@ class ImageMethods:
         else: return 960,600
 
 
+    @staticmethod
+    def find_angle_box(The_box,offset=0):
+        "Finding the angle of the object between the horizontal frame and the longest vector"
+        Vec_1=The_box[0]-The_box[1]
+        Vec_2=The_box[1]-The_box[2]
+        lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
+        lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
+        
+        if lenght_Vec_1>lenght_Vec_2:
+            angle=math.acos(Vec_1[0]/lenght_Vec_1)
+            direction=np.sign(Vec_1[1])*(-1)
+            diff = (The_box[0][0]+The_box[1][0]-1820)
+            if direction==0: 
+                if diff>0:
+                    direction=-1
+                else: direction=1 
+            angel_deg=(angle*360/2/math.pi-offset)*direction
+            return angel_deg        
+        
+        else:
+            angle=math.acos(Vec_2[0]/lenght_Vec_2)
+            direction=np.sign(Vec_2[1])*(-1)
+            diff=(The_box[1][0]+The_box[2][0]-1820)
+            if direction==0:
+                if diff>0:
+                    direction=-1
+                else: direction=1
+            angel_deg=(angle*360/2/math.pi-offset)*direction
+            return angel_deg
+    
+    @staticmethod
+    def angel_cooldown(angel_deg,Cooldown):
+        if Cooldown == 0:
+            if angel_deg==-90:
+                Cooldown = -10
+            elif angel_deg == 90:
+                Cooldown = 10
 
-
+        if angel_deg==-90 or angel_deg ==90:
+            if Cooldown > 0:
+                angel_deg=abs(angel_deg)
+                Cooldown -= 1 
+            if Cooldown < 0:
+                angel_deg=-abs(angel_deg)
+                Cooldown += 1
+        else:
+            if Cooldown > 0:
+                Cooldown -= 1 
+            elif Cooldown < 0:
+                Cooldown += 1
+            else:
+                Cooldown = 0
+        return angel_deg, Cooldown
 
     @staticmethod
     def read_AruCo(image_in,Ids_list):
