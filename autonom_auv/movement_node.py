@@ -2,6 +2,8 @@ import rclpy
 from rclpy.node import Node
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
+import time 
+import numpy as np
 
 class MovementNode(Node):
     def __init__(self):
@@ -22,6 +24,25 @@ class MovementNode(Node):
         move_cmd.angular.z =ang_vel
         self.publisher_.publish(move_cmd)
             
+
+
+class compute_speed:
+    def __init__(self):
+        self.pre_speed = 0
+        self.pre_time = time.time()
+
+    def real_speed(self,speed_in,acceleration):
+        sign = np.sign(speed_in)
+        time_now = time.time()
+        t_s = time_now - self.pre_time
+
+        speed_out = self.pre_speed+(acceleration*t_s*sign)
+        if sign >=0:    
+            if speed_out > speed_in: speed_out = speed_in
+        elif sign < 0:
+            if speed_out < speed_in: speed_out = speed_in
+        return speed_out
+
 
 
 def main(args=None):

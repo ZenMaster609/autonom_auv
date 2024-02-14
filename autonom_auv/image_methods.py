@@ -149,6 +149,7 @@ class ImageMethods:
                     box_index = i 
             box=Box_list[box_index]
             return box 
+            
         else: return None
 
     @staticmethod
@@ -183,10 +184,10 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_Center(Image_inn,The_box, draw:bool): 
+    def find_Center(Image_inn,the_box, draw:bool): 
         "Draw a dot in the center of the box, return Center cordinates"  
-        if The_box is not None:
-            center=((The_box[0]+The_box[2])/2)
+        if the_box is not None:
+            center=((the_box[0]+the_box[2])/2)
             Center_X=int(center[0])
             Center_Y=int(center[1])
             cv2.circle(Image_inn,(Center_X,Center_Y),10,(0,0,255),-1)
@@ -195,35 +196,33 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_angle_box(The_box,offset=0):
-        "Finding the angle of the object between the horizontal frame and the longest vector"
-        Vec_1=The_box[0]-The_box[1]
-        Vec_2=The_box[1]-The_box[2]
-        lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
-        lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
-        
-        if lenght_Vec_1>lenght_Vec_2:
-            angle=math.acos(Vec_1[0]/lenght_Vec_1)
-            direction=np.sign(Vec_1[1])*(-1)
-            diff = (The_box[0][0]+The_box[1][0]-1820)
-            if direction==0: 
-                if diff>0:
-                    direction=-1
-                else: direction=1 
-            angel_deg=(angle*360/2/math.pi-offset)*direction
-            return angel_deg        
-        
-        else:
-            angle=math.acos(Vec_2[0]/lenght_Vec_2)
-            direction=np.sign(Vec_2[1])*(-1)
-            diff=(The_box[1][0]+The_box[2][0]-1820)
+    def find_angle_box(the_box,offset=0):
+        if the_box is not None:
+            "Finding the angle of the object between the horizontal frame and the longest vector"
+            Vec_1=the_box[0]-the_box[1]
+            Vec_2=the_box[1]-the_box[2]
+            lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
+            lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
+
+            if lenght_Vec_1>lenght_Vec_2:
+                diff = (the_box[0][0]+the_box[1][0]-1820)   
+                Vector = Vec_1
+                lenght_Vec = lenght_Vec_1   
+            else:
+                diff=(the_box[1][0]+the_box[2][0]-1820)
+                Vector = Vec_2
+                lenght_Vec = lenght_Vec_2
+                
+            direction=np.sign(Vector[1])*(-1)
             if direction==0:
                 if diff>0:
                     direction=-1
                 else: direction=1
+            angle=math.acos(Vector[0]/lenght_Vec)
             angel_deg=(angle*360/2/math.pi-offset)*direction
             return angel_deg
-    
+        else: return 0 
+
     @staticmethod
     def angel_cooldown(angel_deg,Cooldown):
         if Cooldown == 0:
@@ -249,22 +248,23 @@ class ImageMethods:
         return angel_deg, Cooldown
 
     @staticmethod
-    def read_AruCo(image_in,Ids_list):
+    def read_AruCo(image_in,image_edit,Ids_list):
         "Takes the image and reads the aruco code and adds the Id to the given list"
         gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
-
+        
         if ids is not None and len(ids) > 0:
+            aruco.drawDetectedMarkers(image_edit,corners,ids)
             Ids_list.append(ids[0][0])
         return Ids_list
     
     @staticmethod
-    def filtered_Ids_list(Ids_list):
+    def filtered_ids_list(list):
         "Filter the list and gives back a list without duplicates"
         filtered_list=[]
         for i in range(len(list)):
-            if filtered_list.count(list[i]) < 1 and list.count(list[i])>10:
+            if filtered_list.count(list[i]) < 1:
                     filtered_list.append(list[i])
         return filtered_list
     

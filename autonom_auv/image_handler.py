@@ -34,7 +34,7 @@ class ImageHandler:
         return bench
 
 
-    def find_bench_info(self):
+    def find_bench_info():
         image_edit = self.feed_image.copy()
         bench = self.find_bench(True)
         corners, area = ImageMethods.get_box_info(bench)
@@ -42,11 +42,6 @@ class ImageHandler:
         
         #if tilt ok, gå til venstre linje
         #gå til høyre linje mens du scanner for koder
-
-
-
-
-
 
 
 
