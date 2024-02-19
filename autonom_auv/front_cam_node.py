@@ -21,7 +21,7 @@ class FrontCamNode(Node):
         self.create_subscription(Image,'/camera2/image_raw',  self.cam2_callback,10)
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         self.desired_distance = 30
-        self.mode = 0
+        self.mode = 1
         self.bridge = CvBridge()
         self.logger = logging_data()
         self.handler = ImageHandler()
@@ -47,10 +47,12 @@ class FrontCamNode(Node):
         y_vel = self.y_controller.PID_controller(y_offset,5,0.0,0.0,5000, 10)
         self.logger.log_data(angle_vel,x_vel,y_offset, y_offset)
         # self.get_logger().info(f"angle_vel = {angle_vel}, x_vel = {x_vel}, y_vel = {y_vel} ")
-        self.get_logger().info(f"MODE2: distance_offset = {distance_offset}, y_offset = {y_offset}, y_vel = {y_vel}")
+        self.get_logger().info(f"distance_offset = {distance_offset}, y_offset = {y_offset}, y_vel = {y_vel}")
         #self.send_movement(angle_vel, x_vel, y_vel)
 
 
+
+    #def turn_angle(self, angle):
 
 
     def send_movement(self,ang_z = 0.0, lin_x = 0.0, lin_y = 0.0):

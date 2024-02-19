@@ -11,6 +11,7 @@ from std_msgs.msg import Float32
 import numpy as np
 from .image_methods import ImageMethods
 from .pid_controller import PidController
+from .pid_controller import transfer_funtion_class
 from .movement_node import compute_speed
 from .image_handler import ImageHandler
 from .image_handler import logging_data
@@ -31,6 +32,7 @@ class PipelineImageNode(Node):
         self.image_pipe = ImageHandler()
         self.logger = logging_data()
         self.mode=mode
+        self.yaw_tf =  transfer_funtion_class([1],[1,1])
 
 
 
@@ -42,7 +44,8 @@ class PipelineImageNode(Node):
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         move_cmd = Twist()
-        move_cmd.linear.x = 0.6
+        move_cmd.linear.x = 0.2
+        ang_vel = self.yaw_tf.impliment_transfer_function(ang_vel)
         move_cmd.angular.z = ang_vel
         move_cmd.linear.y = linear_y_vel
         self.publisher_.publish(move_cmd)
@@ -56,11 +59,13 @@ class PipelineImageNode(Node):
 
         the_box = self.image_pipe.find_box(cv_image,image_edit,"pipeline_sim",70000,True)
         angle_deg,center_x,center_y = self.image_pipe.find_box_info(the_box,image_edit,90,True)
+
         offsett_x = PidController.calculate_parameters((center_x),960)
 
 
         if self.mode ==1:
             angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,100)
+            angle_vel =angle_deg/90
             linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
             real_angle_vel = self.compute_speed1.real_speed(angle_vel, 0.4654)
             self.send_movement(real_angle_vel,linear_y_vel)

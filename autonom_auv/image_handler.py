@@ -51,7 +51,6 @@ class ImageHandler:
         middle_right = positions["middle_right"]
 
         
-        
 
         
         stacked = ImageMethods.stack_images([self.show_hsv, self.bench_box_image])
