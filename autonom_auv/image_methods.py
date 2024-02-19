@@ -40,36 +40,25 @@ class ImageMethods:
 
     @staticmethod
     def stack_images(images,):
-        """
-        Stacks the given images in a grid with a maximum of 2 images per row.
-        :param images: List of images to stack. None values are skipped.
-        :param scale: Scale factor for resizing the final stacked image.
-        :return: The stacked image.
-        """
-        # Filter out None values from the images list
         images = [img for img in images if img is not None]
-        # Calculate the number of rows and columns for the grid
         rows = (len(images) + 1) // 2
         cols = min(2, len(images))
-        # Placeholder for row images
         row_images = []
-        # Iterate over the rows
         for i in range(0, len(images), 2):
-            # Horizontal stack for each row (max 2 images per row)
             imgs_to_stack = images[i:i+2]
-            if len(imgs_to_stack) == 1:  # If there's only one image in the last row
-                imgs_to_stack.append(np.zeros_like(images[0]))  # Add a blank image
+            if len(imgs_to_stack) == 1:  
+                imgs_to_stack.append(np.zeros_like(images[0])) 
             row_images.append(np.hstack(imgs_to_stack))
         image_show = np.vstack(row_images) if len(row_images) > 1 else row_images[0]
         return image_show
 
 
     @staticmethod 
-    def color_filter(Image_inn, lower:list, upper:list):
+    def color_filter(Image_inn, range:list):
         "Takes in an image and HSV range, return a black and white image"  
         image_HSV = cv2.cvtColor(Image_inn, cv2.COLOR_BGR2HSV)
-        HSV_lower = np.array(lower)
-        HSV_upper = np.array(upper)
+        HSV_lower = np.array(range[0])
+        HSV_upper = np.array(range[1])
         mask = cv2.inRange(image_HSV,HSV_lower,HSV_upper)
         maskM = cv2.medianBlur(mask, 5)
         return maskM 
@@ -155,12 +144,12 @@ class ImageMethods:
     @staticmethod
     def get_box_info(box):
         """
-        Takes a box as an argument and returns the positions of each of its four corners.
+        Takes a box as an argument and returns the positions of each of its four corners and the middle points of each of its four lines.
         Parameters:
         - box: A NumPy array of shape (4, 2) representing the box's four corners.
         Returns:
         - A dictionary with keys 'top_left', 'top_right', 'bottom_right', 'bottom_left'
-        corresponding to the coordinates of each corner.
+        corresponding to the coordinates of each corner and 'middle_top', 'middle_right', 'middle_bottom', 'middle_left' for the middle points of each line.
         """
         area = cv2.contourArea(box)
         # Sort the box points based on their x-coordinates (helps in identifying left/right)
@@ -171,15 +160,26 @@ class ImageMethods:
         # Sort the left_points and right_points by their y-coordinates to separate top/bottom
         top_left, bottom_left = sorted(left_points, key=lambda x: x[1])
         top_right, bottom_right = sorted(right_points, key=lambda x: x[1])
-        # Return the corners in a structured dictionary
-       
-        corners = {
-            'top_left': tuple(top_left), 
+
+        # Calculate the middle points of each side
+        middle_top = ((top_left[0] + top_right[0]) / 2, (top_left[1] + top_right[1]) / 2)
+        middle_right = ((top_right[0] + bottom_right[0]) / 2, (top_right[1] + bottom_right[1]) / 2)
+        middle_bottom = ((bottom_left[0] + bottom_right[0]) / 2, (bottom_left[1] + bottom_right[1]) / 2)
+        middle_left = ((top_left[0] + bottom_left[0]) / 2, (top_left[1] + bottom_left[1]) / 2)
+
+        # Return the corners and middle points in a structured dictionary
+        positions = {
+            'top_left': tuple(top_left),
             'top_right': tuple(top_right),
             'bottom_right': tuple(bottom_right),
-            'bottom_left': tuple(bottom_left)
+            'bottom_left': tuple(bottom_left),
+            'middle_top': middle_top,
+            'middle_right': middle_right,
+            'middle_bottom': middle_bottom,
+            'middle_left': middle_left
         }
-        return corners, area
+        return positions, area
+
 
 
 

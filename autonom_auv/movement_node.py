@@ -4,27 +4,41 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
 import time 
 import numpy as np
+from .pid_controller import PidController
+from nav_msgs.msg import Odometry
 
 class MovementNode(Node):
     def __init__(self):
         super().__init__('movement_node')
-        self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.create_subscription(Float32,'/angular_velocity', self.ang_vel_callback,10)
- 
-    def TF_stamp(self): 
-        a=0   
+        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
+        self.yaw_controller = PidController()
 
-    def ang_vel_callback(self,msg):
-        angular_velocity = round(msg.data,3)
-        self.send_movement(angular_velocity)
+    def publish_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0):
+        msg = Twist()
+        msg.linear.x = x
+        msg.linear.y = y
+        msg.linear.z = z
+        msg.angular.x = roll
+        msg.angular.y = pitch
+        msg.angular.z = yaw
+        self.publisher.publish(msg)
+
+    def odom_callback(self, msg):
+        self.odom_x = msg.pose.position.x
+        self.odom_y = msg.pose.position.y
+        self.odom_z = msg.pose.position.z
+        self.odom_roll = msg.pose.pose.orientation.x
+        self.odom_pitch = msg.pose.pose.orientation.y
+        self.odom_yaw = msg.pose.pose.orientation.z
+
+    def turn_angle(self, angle):
+        offset = angle - self.odom_x
 
 
-    def send_movement(self,ang_vel):
-        move_cmd = Twist()
-        move_cmd.linear.x = 0.0
-        move_cmd.angular.z =ang_vel
-        self.publisher_.publish(move_cmd)
-            
+
+
+
 
 
 class compute_speed:
@@ -44,7 +58,6 @@ class compute_speed:
         self.pre_time = time_now
         self.pre_speed = speed_out
         return speed_out
-
 
 
 def main(args=None):

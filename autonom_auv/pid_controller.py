@@ -2,7 +2,7 @@ import numpy as np
 import time
 
 
-class PidControllerNode: 
+class PidController: 
      def __init__(self,Pre_offset=None,Pre_time=None,Pre_I=None,Pre_D=None):
             self.Pre_offset = Pre_offset
             self.Pre_time = Pre_time
@@ -15,11 +15,12 @@ class PidControllerNode:
          return Offset_x 
     
     
-     def PID_controller(self,Offset,P=0,I=0,D=0,scale_devide=1):
+     def PID_controller(self,Offset,P=0,I=0,D=0,scale_devide=1, margin=0):
           time_now = time.time()
           P = P/scale_devide
           I = I/scale_devide
           D = D/scale_devide
+          margin = margin/scale_devide
           if self.Pre_time is None:
                Output = P*Offset
                u_I = 0
@@ -34,7 +35,8 @@ class PidControllerNode:
           self.Pre_I = u_I
           self.Pre_D = u_D
 
-
+          if abs(Output) < margin:
+               Output = 0.0
           return Output
 
     

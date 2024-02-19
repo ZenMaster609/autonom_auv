@@ -10,7 +10,7 @@ import cv2.aruco as aruco
 from std_msgs.msg import Float32
 import numpy as np
 from .image_methods import ImageMethods
-from .pid_controller_node import PidControllerNode
+from .pid_controller import PidController
 from .movement_node import compute_speed
 from .image_handler import ImageHandler
 from .image_handler import logging_data
@@ -25,8 +25,8 @@ class PipelineImageNode(Node):
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.angeleuar_controller = PidControllerNode()
-        self.y_controller = PidControllerNode()
+        self.angeleuar_controller = PidController()
+        self.y_controller = PidController()
         self.compute_speed1 = compute_speed()
         self.image_pipe = ImageHandler()
         self.logger = logging_data()
@@ -56,7 +56,7 @@ class PipelineImageNode(Node):
 
         the_box = self.image_pipe.find_box(cv_image,image_edit,"pipeline_sim",70000,True)
         angle_deg,center_x,center_y = self.image_pipe.find_box_info(the_box,image_edit,90,True)
-        offsett_x = PidControllerNode.calculate_parameters((center_x),960)
+        offsett_x = PidController.calculate_parameters((center_x),960)
 
 
         if self.mode ==1:

@@ -13,48 +13,61 @@ import plotly.graph_objects as go
 
 class ImageHandler:
     def __init__(self):
-        self.feed_image = None
-        self.cooldown = 0
-        self.Ids_list= []   
-        self.aruco_printed = 0 
-
-
-
         self.hsv_range_bib = {
             "pipeline_sim" : [[30,114,114],[30,255,255]],
             "visual_short_distance" : [[0, 0, 30],[86, 0, 120]],
             "visual_long_distance" : [[0, 0, 0],[40, 200, 170]],
         }
+        self.feed_image = None
+        self.show_hsv = None
+        self.cooldown = 0
+        self.Ids_list= []   
+        self.aruco_printed = 0 
+        self.bench_box_image = None
+        
 
-    def find_bench(self, close:bool):
+        
+
+
+    def find_bench(self):
         image_edit = self.feed_image.copy()
-        hsv_range = self.hsv_range_bib("visual_short_distance")
+        hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
-        show_hsv = ImageMethods.fix_hsv(hsv_image)
-        boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, True)
+        self.show_hsv = ImageMethods.fix_hsv(hsv_image)
+        boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
         bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
-        stacked = ImageMethods.stack_images([show_hsv,image_edit])
-        ImageMethods.showImage(stacked)
+        self.bench_box_image = image_edit
+        stacked = ImageMethods.stack_images([self.show_hsv,image_edit])
+        #ImageMethods.showImage(stacked)
         return bench
 
 
-    # def find_bench_info():
-    #     image_edit = self.feed_image.copy()
-    #     bench = self.find_bench(True)
-    #     corners, area = ImageMethods.get_box_info(bench)
-        #bruk vektorer for å regne ut tilt i grader/radianer
+    def find_bench_info(self):
+        bench = self.find_bench()
+        yaw_offset, cx, cy = self.find_box_info(bench, self.bench_box_image, 180, True)
+        positions, area = ImageMethods.get_box_info(bench)
+        size = 8000000/area
+        middle_left = positions["middle_left"]
+        middle_right = positions["middle_right"]
+
         
-        #if tilt ok, gå til venstre linje
-        #gå til høyre linje mens du scanner for koder
+        
+
+        
+        stacked = ImageMethods.stack_images([self.show_hsv, self.bench_box_image])
+        ImageMethods.showImage(stacked)
+        return yaw_offset, size, middle_left, middle_right
+
 
     def find_box(self,cv_image,image_edit,hsv_range_name,min_box_area,draw:bool):
         dimensions = cv_image.shape 
         hsv_range = self.hsv_range_bib[hsv_range_name]
-        mask = ImageMethods.color_filter(cv_image,hsv_range[0],hsv_range[1])
+        mask = ImageMethods.color_filter(cv_image,hsv_range)
         mask = cv2.line(mask,(0,600),(dimensions[1],600),(0,0,0),10)     
         box_list = ImageMethods.find_boxes(mask, image_edit, min_box_area, draw)
         the_box = ImageMethods.find_the_box(box_list)
         return the_box
+    
 
     def find_box_info(self,the_box,image_edit, angel_offset,draw:bool):
         angle_deg = ImageMethods.find_angle_box(the_box,angel_offset)
@@ -62,6 +75,7 @@ class ImageHandler:
         center_x,center_y = ImageMethods.find_Center(image_edit,the_box, draw)
         cv2.putText(image_edit, f"{int(angle_deg)}",[1600,1050], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
         return angle_deg,center_x,center_y
+    
 
     def aruco_handler(self,cv_image,image_edit,the_box):
         #reads AruCo codes and print them if there noe more pipeline
