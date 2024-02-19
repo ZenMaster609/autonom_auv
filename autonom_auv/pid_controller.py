@@ -1,5 +1,7 @@
 import numpy as np
 import time
+from scipy.signal import TransferFunction, tf2ss
+import numpy as np
 
 
 class PidController: 
@@ -39,4 +41,24 @@ class PidController:
                Output = 0.0
           return Output
 
+
+class transfer_funtion_class: 
+    def __init__(self,numerator,denominator): 
+        self.numerator = numerator
+        self.denominator = denominator
+        self.A, self.B, self.C, self.D = tf2ss(numerator, denominator)
+        self.x = np.zeros((self.A.shape[0],))
+        self.pre_time = None
+
+
+    def impliment_transfer_function(self,input): 
+        time_now = time.time()
+        t_s = time_now-self.pre_time
+        # State update equation: x(k+1) = Ax(k) + Bu(k)      
+        self.x = self.A.dot(self.x) * t_s + self.B * input * t_s
+        # Output equation: y(k) = Cx(k) + Du(k)
+        output = self.C.dot(self.x) + self.D * input
+
+        self.pre_time=time_now
+        return output
     
