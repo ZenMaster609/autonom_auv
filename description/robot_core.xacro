@@ -60,6 +60,7 @@
   </link>
 
 
+
   <gazebo>
     <plugin name="object_controller" filename="libgazebo_ros_planar_move.so">
       <commandTopic>cmd_vel</commandTopic>

@@ -29,7 +29,7 @@ def generate_launch_description():
     # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
-                                   '-entity', 'my_bot', '-z', '2'],
+                                   '-entity', 'my_bot', '-z', '0.8'],
                         output='screen')
 
    
@@ -46,16 +46,16 @@ def generate_launch_description():
         output='screen'
     )
 
-    valve_image_node = Node(
-        package = package_name,
-        executable= 'valve_image_node',
-        parameters=[{'save_images': True}],
-        output='screen'
-    )
+  #  valve_image_node = Node(
+   #     package = package_name,
+    #    executable= 'valve_image_node',
+     #   parameters=[{'save_images': True}],
+      #  output='screen'
+    #)
 
     pipeline_image_node = Node(
         package = package_name,
-        executable= 'valve_image_node',
+        executable= 'pipeline_image_node',
         parameters=[{'save_images': True}],
         output='screen'
     )
@@ -73,6 +73,5 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        movement_node,
         pipeline_image_node
     ])

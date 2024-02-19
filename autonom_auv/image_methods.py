@@ -25,7 +25,8 @@ class ImageMethods:
         cv2.imwrite(photos_path, image)
 
     @staticmethod
-    def showImage(image):
+    def showImage(image,scale=0.5):
+        image = cv2.resize(image, (0, 0),fx=scale,fy=scale)
         cv2.imshow("window", image)
         key = cv2.waitKey(1)
         if key == ord('s'):
@@ -38,7 +39,7 @@ class ImageMethods:
         return closed_image
 
     @staticmethod
-    def stack_images(images, scale=0.5):
+    def stack_images(images,):
         """
         Stacks the given images in a grid with a maximum of 2 images per row.
         :param images: List of images to stack. None values are skipped.
@@ -60,7 +61,6 @@ class ImageMethods:
                 imgs_to_stack.append(np.zeros_like(images[0]))  # Add a blank image
             row_images.append(np.hstack(imgs_to_stack))
         image_show = np.vstack(row_images) if len(row_images) > 1 else row_images[0]
-        image_show = cv2.resize(image_show, (0, 0), None, scale, scale)
         return image_show
 
 
@@ -74,34 +74,16 @@ class ImageMethods:
         maskM = cv2.medianBlur(mask, 5)
         return maskM 
 
-    @staticmethod
-    def make_boxes(Black_White_Image, Original_image):
-        """
-        Takes in a black and white image and the original image, returns the original image with drawn boxes, 
-        an image with box approximation, and a list of boxes that have an area greater than min_box_size.
-        """
-        dimensions = Black_White_Image.shape
-        Box_Image = np.zeros((dimensions[0], dimensions[1], 3), np.uint8)
-        Box_list = []
-        contours, _ = cv2.findContours(Black_White_Image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        if contours is not None:
-            for cnt in contours:
-                rect = cv2.minAreaRect(cnt)
-                Box = np.intp(cv2.boxPoints(rect))
-                Box_list.append(Box)
-                cv2.drawContours(Box_Image, [Box], 0, (255, 255, 255), -1)
-                cv2.drawContours(Original_image, [Box], -1, (0, 0, 255), thickness=2)
-        return Original_image, Box_Image, Box_list
+
     
     @staticmethod
-    def make_boxes2(hsv_image, Original_image, min_box_size, draw:bool):
+    def find_boxes(hsv_image, Original_image, min_box_size, draw:bool):
         """
         Takes in a black and white image and the original image, returns the original image with drawn boxes, 
         an image with box approximation, and a list of boxes that have an area greater than min_box_size.
         """
         box_list = []
-        closed_image = ImageMethods.close_image(hsv_image, 5)
-        contours, _ = cv2.findContours(closed_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         if contours is not None:
             for cnt in contours:
                 rect = cv2.minAreaRect(cnt)
@@ -111,8 +93,33 @@ class ImageMethods:
                     box_list.append(box)
                     if draw:
                         cv2.drawContours(Original_image, [box], -1, (0, 0, 255), thickness=2)
-        return box_list, closed_image
+        return box_list
 
+
+    @staticmethod
+    def make_stricter_boxes(hsv_image, Original_image, draw:bool):
+        contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        best_rectangle = None
+        max_area = 0
+        for cnt in contours:
+            # Approximate the contour to a polygon
+            epsilon = 0.05 * cv2.arcLength(cnt, True)
+            approx = cv2.approxPolyDP(cnt, epsilon, True)
+            # Check for rectangular shape (4 sides) and aspect ratio
+            if len(approx) == 4:
+                x, y, w, h = cv2.boundingRect(approx)
+                aspect_ratio = float(w) / h
+                area = cv2.contourArea(approx)
+                # You can adjust the aspect ratio range according to the expected shape
+                if 2.0 < aspect_ratio < 4 and area > max_area:
+                    best_rectangle = approx
+                    max_area = area
+        if best_rectangle is not None and draw:
+            cv2.drawContours(Original_image, [best_rectangle], -1, (0, 255, 0), thickness=3)
+        return best_rectangle   
+    
+
+        
     @staticmethod
     def find_biggest_box(image, boxes:list, draw:bool):
         max_area = 0
@@ -142,40 +149,123 @@ class ImageMethods:
                     box_index = i 
             box=Box_list[box_index]
             return box 
+            
         else: return None
-        
 
     @staticmethod
-    def Draw_Center(Image_inn,The_box): 
-        "Draw a dot in the center of the bo, return Center cordinates"  
-        if The_box is not None:
-            center=((The_box[0]+The_box[2])/2)
+    def get_box_info(box):
+        """
+        Takes a box as an argument and returns the positions of each of its four corners.
+        Parameters:
+        - box: A NumPy array of shape (4, 2) representing the box's four corners.
+        Returns:
+        - A dictionary with keys 'top_left', 'top_right', 'bottom_right', 'bottom_left'
+        corresponding to the coordinates of each corner.
+        """
+        area = cv2.contourArea(box)
+        # Sort the box points based on their x-coordinates (helps in identifying left/right)
+        sorted_box = sorted(box, key=lambda x: x[0])
+        # Split the sorted points into leftmost and rightmost
+        left_points = sorted_box[:2]
+        right_points = sorted_box[2:]
+        # Sort the left_points and right_points by their y-coordinates to separate top/bottom
+        top_left, bottom_left = sorted(left_points, key=lambda x: x[1])
+        top_right, bottom_right = sorted(right_points, key=lambda x: x[1])
+        # Return the corners in a structured dictionary
+       
+        corners = {
+            'top_left': tuple(top_left), 
+            'top_right': tuple(top_right),
+            'bottom_right': tuple(bottom_right),
+            'bottom_left': tuple(bottom_left)
+        }
+        return corners, area
+
+
+
+
+    @staticmethod
+    def find_Center(Image_inn,the_box, draw:bool): 
+        "Draw a dot in the center of the box, return Center cordinates"  
+        if the_box is not None:
+            center=((the_box[0]+the_box[2])/2)
             Center_X=int(center[0])
             Center_Y=int(center[1])
             cv2.circle(Image_inn,(Center_X,Center_Y),10,(0,0,255),-1)
-            return Image_inn,Center_X,Center_Y
-        else: return Image_inn,990,600
-
-
-
+            return Center_X,Center_Y
+        else: return 960,600
 
 
     @staticmethod
-    def read_AruCo(image_in,Ids_list):
+    def find_angle_box(the_box,offset=0):
+        if the_box is not None:
+            "Finding the angle of the object between the horizontal frame and the longest vector"
+            Vec_1=the_box[0]-the_box[1]
+            Vec_2=the_box[1]-the_box[2]
+            lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
+            lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
+
+            if lenght_Vec_1>lenght_Vec_2:
+                diff = (the_box[0][0]+the_box[1][0]-1820)   
+                Vector = Vec_1
+                lenght_Vec = lenght_Vec_1   
+            else:
+                diff=(the_box[1][0]+the_box[2][0]-1820)
+                Vector = Vec_2
+                lenght_Vec = lenght_Vec_2
+                
+            direction=np.sign(Vector[1])*(-1)
+            if direction==0:
+                if diff>0:
+                    direction=-1
+                else: direction=1
+            angle=math.acos(Vector[0]/lenght_Vec)
+            angel_deg=(angle*360/2/math.pi-offset)*direction
+            return angel_deg
+        else: return 0 
+
+    @staticmethod
+    def angel_cooldown(angel_deg,Cooldown):
+        if Cooldown == 0:
+            if angel_deg==-90:
+                Cooldown = -10
+            elif angel_deg == 90:
+                Cooldown = 10
+
+        if angel_deg==-90 or angel_deg ==90:
+            if Cooldown > 0:
+                angel_deg=abs(angel_deg)
+                Cooldown -= 1 
+            if Cooldown < 0:
+                angel_deg=-abs(angel_deg)
+                Cooldown += 1
+        else:
+            if Cooldown > 0:
+                Cooldown -= 1 
+            elif Cooldown < 0:
+                Cooldown += 1
+            else:
+                Cooldown = 0
+        return angel_deg, Cooldown
+
+    @staticmethod
+    def read_AruCo(image_in,image_edit,Ids_list):
         "Takes the image and reads the aruco code and adds the Id to the given list"
         gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
+        
         if ids is not None and len(ids) > 0:
+            aruco.drawDetectedMarkers(image_edit,corners,ids)
             Ids_list.append(ids[0][0])
         return Ids_list
     
     @staticmethod
-    def filtered_Ids_list(Ids_list):
+    def filtered_ids_list(list):
         "Filter the list and gives back a list without duplicates"
         filtered_list=[]
         for i in range(len(list)):
-            if filtered_list.count(list[i]) < 1 and list.count(list[i])>10:
+            if filtered_list.count(list[i]) < 1:
                     filtered_list.append(list[i])
         return filtered_list
     

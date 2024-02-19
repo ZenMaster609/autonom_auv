@@ -12,6 +12,7 @@ from .image_handler import ImageHandler
 from .image_methods import ImageMethods
 from .dynamic_display import DynamicDisplay
 
+
 class FrontCamNode(Node):
     def __init__(self):
         super().__init__('valve_image_node')
@@ -26,8 +27,13 @@ class FrontCamNode(Node):
         cam_feed = self.bridge.imgmsg_to_cv2(data, "bgr8")
         self.handler.feed_image = cam_feed
         #DynamicDisplay.find_hsv(cam_feed)
-        self.handler.find_bench()
-
+        self.handler.find_bench_info
+        # if close:
+        #     hsv_lower = [0, 0, 0] #long distance
+        #     hsv_upper = [40, 200, 170] #long distance
+        # else:
+        #     hsv_lower = [0, 0, 30] #short distance
+        #     hsv_upper = [86, 0, 120] #short distance     
 
 
 
