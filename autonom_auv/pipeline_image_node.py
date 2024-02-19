@@ -12,9 +12,12 @@ import numpy as np
 from .image_methods import ImageMethods
 from .pid_controller_node import PidControllerNode
 from .movement_node import compute_speed
-
+from .image_handler import ImageHandler
+from .image_handler import logging_data
+import signal
 from geometry_msgs.msg import Twist
 import math
+
 
 class PipelineImageNode(Node):
     def __init__(self,mode):
@@ -22,17 +25,24 @@ class PipelineImageNode(Node):
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.bridge = CvBridge()
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.Ids_list= []
         self.angeleuar_controller = PidControllerNode()
         self.y_controller = PidControllerNode()
         self.compute_speed1 = compute_speed()
-        self.cooldown = 0
+        self.image_pipe = ImageHandler()
+        self.logger = logging_data()
         self.mode=mode
+
+
+
+    def custom_cleanup(self):
+        self.logger.plot_data_table(self.colum1,self.colum2,self.filtered_ids,self.plot_names)
+        self.get_logger().info(f'I ran')
+
+
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         move_cmd = Twist()
         move_cmd.linear.x = 0.6
-        ang_vel = self.compute_speed1.real_speed(ang_vel, 0.05)
         move_cmd.angular.z = ang_vel
         move_cmd.linear.y = linear_y_vel
         self.publisher_.publish(move_cmd)
@@ -42,39 +52,33 @@ class PipelineImageNode(Node):
     def listener_callback(self, data):
 
         cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        image_edit =cv_image.copy()
-        dimensions = cv_image.shape
-       
-     
-        mask = ImageMethods.color_filter(cv_image,[30,114,114],[30,255,255])
-        mask = cv2.line(mask,(0,600),(dimensions[1],600),(0,0,0),10)
-        box_list = ImageMethods.find_boxes(mask, image_edit, 70000, True)
-        the_box = ImageMethods.find_the_box(box_list)
-        
-        angle_deg = ImageMethods.find_angle_box(the_box,90)
-        angle_deg, self.cooldown = ImageMethods.angel_cooldown(angle_deg,self.cooldown)
+        image_edit = cv_image.copy()
 
-        center_x,center_y = ImageMethods.find_Center(image_edit,the_box, True)
-
-
-        cv2.putText(image_edit, f"{int(angle_deg)}",[1600,1050], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
+        the_box = self.image_pipe.find_box(cv_image,image_edit,"pipeline_sim",70000,True)
+        angle_deg,center_x,center_y = self.image_pipe.find_box_info(the_box,image_edit,90,True)
         offsett_x = PidControllerNode.calculate_parameters((center_x),960)
 
+
         if self.mode ==1:
-            angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(0.02),0.0000,0.0000)
-            linear_y_vel =  self.y_controller.PID_controller(offsett_x,(2/1920),0.000005,0.000005)
-            self.send_movement(angle_vel,linear_y_vel)
+            angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,100)
+            linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
+            real_angle_vel = self.compute_speed1.real_speed(angle_vel, 0.4654)
+            self.send_movement(real_angle_vel,linear_y_vel)
         else:
-            angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(1.5/1920),0.000005,0.000005)
+            angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
             self.send_movement(angle_vel)
 
-        self.Ids_list= ImageMethods.read_AruCo(cv_image,image_edit,self.Ids_list)
-        if the_box is None:
-            ids = ImageMethods.filtered_ids_list(self.Ids_list)
-            self.get_logger().info(f"{ids}")
-      
-        image_show = cv2.resize(image_edit, (0, 0),fx=0.7, fy=0.7)
-        ImageMethods.showImage(image_show)
+        
+
+
+        self.filtered_ids = self.image_pipe.aruco_handler(cv_image,image_edit,the_box)
+        ImageMethods.showImage(image_edit,0.7)
+    
+        self.plot_names=["","Angel offset in degrees","Ideal Angeluar Velocity","Real Angeluar Velocity"]
+        self.logger.log_data(angle_deg,angle_vel,real_angle_vel)
+        self.colum1 = ["P","I","D","Acceleration","min area box"]
+        self.colum2 = [2,0,0,0.4654,70000]
+
 
 
 
@@ -82,10 +86,14 @@ class PipelineImageNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     image_processor = PipelineImageNode(1)
+    signal.signal(signal.SIGINT, lambda sig, frame: image_processor.custom_cleanup())
     rclpy.spin(image_processor)
+    image_processor.custom_cleanup()  # Ensure cleanup is called if exit wasn't due to SIGINT
+    rclpy.shutdown()
     cv2.destroyAllWindows()
     image_processor.destroy_node()
-    rclpy.shutdown()
+
+
 
 if __name__ == '__main__':
     main()

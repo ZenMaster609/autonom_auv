@@ -25,7 +25,8 @@ class ImageMethods:
         cv2.imwrite(photos_path, image)
 
     @staticmethod
-    def showImage(image):
+    def showImage(image,scale=0.5):
+        image = cv2.resize(image, (0, 0),fx=scale,fy=scale)
         cv2.imshow("window", image)
         key = cv2.waitKey(1)
         if key == ord('s'):
@@ -38,7 +39,7 @@ class ImageMethods:
         return closed_image
 
     @staticmethod
-    def stack_images(images, scale=0.5):
+    def stack_images(images,):
         """
         Stacks the given images in a grid with a maximum of 2 images per row.
         :param images: List of images to stack. None values are skipped.
@@ -60,7 +61,6 @@ class ImageMethods:
                 imgs_to_stack.append(np.zeros_like(images[0]))  # Add a blank image
             row_images.append(np.hstack(imgs_to_stack))
         image_show = np.vstack(row_images) if len(row_images) > 1 else row_images[0]
-        image_show = cv2.resize(image_show, (0, 0), None, scale, scale)
         return image_show
 
 
@@ -172,8 +172,9 @@ class ImageMethods:
         top_left, bottom_left = sorted(left_points, key=lambda x: x[1])
         top_right, bottom_right = sorted(right_points, key=lambda x: x[1])
         # Return the corners in a structured dictionary
+       
         corners = {
-            'top_left': tuple(top_left),
+            'top_left': tuple(top_left), 
             'top_right': tuple(top_right),
             'bottom_right': tuple(bottom_right),
             'bottom_left': tuple(bottom_left)

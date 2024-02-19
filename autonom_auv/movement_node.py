@@ -11,7 +11,8 @@ class MovementNode(Node):
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         self.create_subscription(Float32,'/angular_velocity', self.ang_vel_callback,10)
  
-        
+    def TF_stamp(self): 
+        a=0   
 
     def ang_vel_callback(self,msg):
         angular_velocity = round(msg.data,3)
@@ -35,12 +36,13 @@ class compute_speed:
         sign = np.sign(speed_in)
         time_now = time.time()
         t_s = time_now - self.pre_time
-
         speed_out = self.pre_speed+(acceleration*t_s*sign)
         if sign >=0:    
             if speed_out > speed_in: speed_out = speed_in
         elif sign < 0:
             if speed_out < speed_in: speed_out = speed_in
+        self.pre_time = time_now
+        self.pre_speed = speed_out
         return speed_out
 
 

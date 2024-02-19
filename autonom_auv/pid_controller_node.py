@@ -15,8 +15,11 @@ class PidControllerNode:
          return Offset_x 
     
     
-     def PID_controller(self,Offset,P=0,I=0,D=0):
+     def PID_controller(self,Offset,P=0,I=0,D=0,scale_devide=1):
           time_now = time.time()
+          P = P/scale_devide
+          I = I/scale_devide
+          D = D/scale_devide
           if self.Pre_time is None:
                Output = P*Offset
                u_I = 0
