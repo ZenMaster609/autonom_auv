@@ -6,14 +6,16 @@
       <visual name="visual">
         <geometry>
           <mesh>
-            <uri>model://valve.stl</uri>
+            <uri>model://valve/benk3.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
           </mesh>
         </geometry>
       </visual>
       <collision name="collision">
         <geometry>
           <mesh>
-            <uri>model://valve.stl</uri>
+            <uri>model://valve/benk3.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
           </mesh>
         </geometry>
       </collision>
