@@ -1,12 +1,9 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import Image
-from rosgraph_msgs.msg import Clock 
 from cv_bridge import CvBridge
 import cv2
-import os
 from ament_index_python.packages import get_package_share_directory
-import cv2.aruco as aruco
 from std_msgs.msg import Float32
 import numpy as np
 from .image_methods import ImageMethods
@@ -17,14 +14,16 @@ from .image_handler import ImageHandler
 from .image_handler import logging_data
 import signal
 from geometry_msgs.msg import Twist
-import math
-
+import asyncio
+import time
+from sensor_msgs.msg import Imu
 
 class PipelineImageNode(Node):
     def __init__(self,mode):
         super().__init__('image_processor') 
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.bridge = CvBridge()
+        self.create_subscription(Imu,"/imu/data", self.imu_callback,10)
         self.publisher_ = self.create_publisher(Twist, '/cmd_vel', 10)
         self.angeleuar_controller = PidController()
         self.y_controller = PidController()
@@ -32,24 +31,30 @@ class PipelineImageNode(Node):
         self.image_pipe = ImageHandler()
         self.logger = logging_data()
         self.mode=mode
-        self.yaw_tf =  transfer_funtion_class([1],[1,1])
-
+        self.yaw_tf =  transfer_funtion_class([1007],[180.5, 131.043,1507])
+        self.k = 0
+        self.loop = asyncio.get_event_loop()
 
 
     def custom_cleanup(self):
         self.logger.plot_data_table(self.colum1,self.colum2,self.filtered_ids,self.plot_names)
         self.get_logger().info(f'I ran')
 
+    def imu_callback(self,data):
+        angular_velocity = data.angular_velocity
+        self.get_logger().info(f"Angular velocity: x={angular_velocity.x}, y={angular_velocity.y}, z={angular_velocity.z}")
 
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         move_cmd = Twist()
         move_cmd.linear.x = 0.2
-        ang_vel = self.yaw_tf.impliment_transfer_function(ang_vel)
+        #time.sleep(0.2)
+        # if self.k > 10:
+        #     await asyncio.sleep(0.2)
         move_cmd.angular.z = ang_vel
         move_cmd.linear.y = linear_y_vel
         self.publisher_.publish(move_cmd)
-
+        self.k += 1
 
 
     def listener_callback(self, data):
@@ -67,7 +72,7 @@ class PipelineImageNode(Node):
             angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,100)
             angle_vel =angle_deg/90
             linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
-            real_angle_vel = self.compute_speed1.real_speed(angle_vel, 0.4654)
+            real_angle_vel = self.yaw_tf.impliment_transfer_function(angle_vel)
             self.send_movement(real_angle_vel,linear_y_vel)
         else:
             angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
