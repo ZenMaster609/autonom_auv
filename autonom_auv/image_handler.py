@@ -25,37 +25,21 @@ class ImageHandler:
         self.aruco_printed = 0 
         self.bench_box_image = None
         
-
+    def show_image(self):
+        ImageMethods.showImage(self.feed_image)
         
-
-
     def find_bench(self):
         image_edit = self.feed_image.copy()
         hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
-        self.show_hsv = ImageMethods.fix_hsv(hsv_image)
         boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
         bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
-        self.bench_box_image = image_edit
-        stacked = ImageMethods.stack_images([self.show_hsv,image_edit])
-        #ImageMethods.showImage(stacked)
-        return bench
-
-
-    def find_bench_info(self):
-        bench = self.find_bench()
-        yaw_offset, cx, cy = self.find_box_info(bench, self.bench_box_image, 180, True)
         positions, area = ImageMethods.get_box_info(bench)
         size = 8000000/area
         middle_left = positions["middle_left"]
         middle_right = positions["middle_right"]
-
-        
-
-        
-        stacked = ImageMethods.stack_images([self.show_hsv, self.bench_box_image])
-        ImageMethods.showImage(stacked)
-        return yaw_offset, size, middle_left, middle_right
+        ImageMethods.showImage(image_edit)
+        return size, middle_left, middle_right
 
 
     def find_box(self,cv_image,image_edit,hsv_range_name,min_box_area,draw:bool):

@@ -45,7 +45,12 @@ def generate_launch_description():
     front_cam_node = Node(
         package = package_name,
         executable= 'front_cam_node',
-        parameters=[{'save_images': True}],
+        output='screen'
+    )
+
+    blind_movement_node = Node(
+        package = package_name,
+        executable= 'blind_movement_node',
         output='screen'
     )
     
@@ -57,5 +62,6 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         front_cam_node,
+        blind_movement_node
         #up_down_node
     ])

@@ -1,0 +1,7 @@
+# Request
+float64 angle
+float64 distance
+---
+# Response
+bool success
+string message

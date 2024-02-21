@@ -72,7 +72,7 @@ class PipelineImageNode(Node):
             angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,100)
             angle_vel =angle_deg/90
             linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
-            real_angle_vel = self.yaw_tf.impliment_transfer_function(angle_vel)
+            real_angle_vel = angle_vel
             self.send_movement(real_angle_vel,linear_y_vel)
         else:
             angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)

@@ -18,6 +18,7 @@ setup(
         (os.path.join('share', package_name, 'worlds'), glob('worlds/*')),
         (os.path.join('share', package_name, 'photos'), glob('photos/*')),
         (os.path.join('share', package_name, 'config'), glob('config/*')),
+        (os.path.join('share', package_name, 'srv'), glob('srv/*.srv')),    
     ],
 
     install_requires=['setuptools'],
@@ -34,6 +35,7 @@ setup(
             'front_cam_node = autonom_auv.front_cam_node:main',
             'fake_controller_node = autonom_auv.fake_controller_node:main',
             'up_down_node = autonom_auv.up_down_node:main',
+            'blind_movement_node = autonom_auv.blind_movement_node:main',
         ],
     },
 )
