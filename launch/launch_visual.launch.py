@@ -62,6 +62,6 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         front_cam_node,
-        blind_movement_node
+        #blind_movement_node
         #up_down_node
     ])

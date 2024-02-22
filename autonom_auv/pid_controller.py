@@ -4,7 +4,7 @@ from scipy.signal import TransferFunction, tf2ss
 import numpy as np
 from collections import deque
 import asyncio
-
+import math
 class PidController: 
      def __init__(self,Pre_offset=None,Pre_time=None,Pre_I=None,Pre_D=None):
             self.Pre_offset = Pre_offset
@@ -64,3 +64,23 @@ class transfer_funtion_class:
         self.pre_time=time_now
         return output[0][0]
     
+class Quaters:
+     @staticmethod
+     def quaternion_to_euler(x, y, z, w):
+          """
+          Convert a quaternion into euler angles (roll, pitch, yaw)
+          roll is rotation around x in radians (counterclockwise)
+          pitch is rotation around y in radians (counterclockwise)
+          yaw is rotation around z in radians (counterclockwise)
+          """
+          t0 = +2.0 * (w * x + y * z)
+          t1 = +1.0 - 2.0 * (x * x + y * y)
+          roll_x = math.atan2(t0, t1)
+          t2 = +2.0 * (w * y - z * x)
+          t2 = +1.0 if t2 > +1.0 else t2
+          t2 = -1.0 if t2 < -1.0 else t2
+          pitch_y = math.asin(t2)
+          t3 = +2.0 * (w * z + x * y)
+          t4 = +1.0 - 2.0 * (y * y + z * z)
+          yaw_z = math.atan2(t3, t4)
+          return roll_x, pitch_y, yaw_z

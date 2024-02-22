@@ -45,7 +45,7 @@ class BlindMoveNode(Node):
             self.check_x_goal()
         #self.get_logger().info(f"odom_x = {self.odom_x}")
 
-    def check_yaw_goal(self):
+    def check_yaw_goal(self, axis):
         if self.target_yaw is None or self.odom_yaw is None:
             return  # Do nothing if we don't have a target or current state
         if abs(self.target_yaw - self.odom_yaw) < 0.005: # Check if we are close to the target
@@ -84,17 +84,6 @@ class BlindMoveNode(Node):
         self.target_yaw = self.odom_yaw + rad_angle 
 
 
-
-
-    def publish_bool(self):
-        msg = Bool()
-        msg.data = True 
-        self.publisher_bool.publish(msg)
-
-    def move_serv_callback(self, msg):
-        if self.last_x != msg.linear.x:
-            self.last_x = msg.linear.x
-            self.target_x = self.odom_x + msg.linear.x
         
 
 
