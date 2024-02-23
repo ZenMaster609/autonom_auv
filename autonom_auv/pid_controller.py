@@ -1,6 +1,6 @@
 import numpy as np
 import time
-from scipy.signal import TransferFunction, tf2ss
+import control as ctl
 import numpy as np
 from collections import deque
 import asyncio
@@ -43,11 +43,42 @@ class PidController:
           return Output
 
 
+# class transfer_funtion_class:
+#     def __init__(self, numerator, denominator):
+#         ss = ctl.tf2ss(numerator,denominator)
+#         self.A = ss.A
+#         self.B = ss.B
+#         self.C = ss.C
+#         self.D  = ss.D
+#         self.x = np.zeros((self.A.shape[0],))
+#         self.pre_time = 0
+
+#     def impliment_transfer_function(self, input):
+#         time_now = time.time()
+#         t_s = time_now - self.pre_time
+
+#         # State update equation: x(k+1) = Ax(k) + Bu(k)
+#         self.x = np.dot(self.A, self.x) * t_s + np.dot(self.B, input) * t_s
+
+#         # Output equation: y(k) = Cx(k) + Du(k)
+#         output = np.dot(self.C, self.x) + self.D * input
+
+#         self.pre_time = time_now
+#         return output[0][0]
+
 class transfer_funtion_class: 
     def __init__(self,numerator,denominator): 
         self.numerator = numerator
         self.denominator = denominator
-        self.A, self.B, self.C, self.D = tf2ss(numerator, denominator)
+        ss = ctl.tf2ss(numerator,denominator)
+        self.A = np.array(np.array([[-5.731, -6.473, -0.003582, -0.00167],
+                          [7.195, -0.02194, -8.354, -0.7413],
+                          [-2.26, 8.258, -13.42, -83.66],
+                          [0.3076, -0.002601, -1.61, -10.72]]))
+        print(self.A)
+        self.B = np.array(np.array([[0.5814],[-0.5942],[0.5476],[-0.003237]]))
+        self.C = np.array(np.array([[8.979, -0.02903, 0.0001338, 4.864e-7]]))
+        self.D  = np.array(np.array([[0]]))
         self.x = np.zeros((self.A.shape[0],))
         self.pre_time = 0
         
@@ -60,7 +91,10 @@ class transfer_funtion_class:
         self.x = self.A.dot(self.x) * t_s + self.B * input * t_s
         # Output equation: y(k) = Cx(k) + Du(k)
         output = self.C.dot(self.x) + self.D * input
-
+        print(self.A)
+        print(self.B)
+        print(self.C)
+        print(self.D)
         self.pre_time=time_now
         return output[0][0]
     

@@ -17,6 +17,7 @@ from geometry_msgs.msg import Twist
 import asyncio
 import time
 from sensor_msgs.msg import Imu
+import math
 
 class PipelineImageNode(Node):
     def __init__(self,mode):
@@ -31,7 +32,7 @@ class PipelineImageNode(Node):
         self.image_pipe = ImageHandler()
         self.logger = logging_data()
         self.mode=mode
-        self.yaw_tf =  transfer_funtion_class([1007],[180.5, 131.043,1507])
+        self.yaw_tf =  transfer_funtion_class([121.3, 72.41], [1, 7.359, 165.2, 72,.42])
         self.k = 0
         self.loop = asyncio.get_event_loop()
 
@@ -69,17 +70,17 @@ class PipelineImageNode(Node):
 
 
         if self.mode ==1:
-            angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,100)
+            angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(2),0.0,0.0,10000)
             angle_vel =angle_deg/90
             linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
-            real_angle_vel = angle_vel
-            self.send_movement(real_angle_vel,linear_y_vel)
+            
+            
         else:
             angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
             self.send_movement(angle_vel)
 
-        
-
+        real_angle_vel = self.yaw_tf.impliment_transfer_function(angle_vel)
+        self.send_movement(real_angle_vel,linear_y_vel)
 
         self.filtered_ids = self.image_pipe.aruco_handler(cv_image,image_edit,the_box)
         ImageMethods.showImage(image_edit,0.7)
