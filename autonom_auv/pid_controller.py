@@ -88,13 +88,10 @@ class transfer_funtion_class:
         t_s = time_now-self.pre_time
           
         # State update equation: x(k+1) = Ax(k) + Bu(k)      
-        self.x = self.A.dot(self.x) * t_s + self.B * input * t_s
-        # Output equation: y(k) = Cx(k) + Du(k)
-        output = self.C.dot(self.x) + self.D * input
-        print(self.A)
-        print(self.B)
-        print(self.C)
-        print(self.D)
+        dx = np.dot(self.A,self.x) + np.dot(self.B,input)  
+        self.x = self.x + dx * t_s #Discrete-time state update
+        # output equation: y(k) = Cx(k) + Du(k)
+        output = np.dot(self.C,self.x) + self.D * input  
         self.pre_time=time_now
         return output[0][0]
     

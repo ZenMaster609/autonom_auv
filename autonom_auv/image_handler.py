@@ -28,18 +28,17 @@ class ImageHandler:
     def show_image(self):
         ImageMethods.showImage(self.feed_image)
         
-    def find_bench(self):
+    def find_bench(self, front):
         image_edit = self.feed_image.copy()
         hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
         bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
         positions, area = ImageMethods.get_box_info(bench)
-        size = 8000000/area
-        middle_left = positions["middle_left"]
-        middle_right = positions["middle_right"]
+        if front:size = 8000000/area
+        else: size = 14000000/area
         ImageMethods.showImage(image_edit)
-        return size, middle_left, middle_right
+        return size, positions
 
 
     def find_box(self,cv_image,image_edit,hsv_range_name,min_box_area,draw:bool):

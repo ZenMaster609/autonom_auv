@@ -166,6 +166,11 @@ class ImageMethods:
         middle_right = ((top_right[0] + bottom_right[0]) / 2, (top_right[1] + bottom_right[1]) / 2)
         middle_bottom = ((bottom_left[0] + bottom_right[0]) / 2, (bottom_left[1] + bottom_right[1]) / 2)
         middle_left = ((top_left[0] + bottom_left[0]) / 2, (top_left[1] + bottom_left[1]) / 2)
+        
+        # Calculate the center of the box
+        center_x = (top_left[0] + top_right[0] + bottom_left[0] + bottom_right[0]) / 4
+        center_y = (top_left[1] + top_right[1] + bottom_left[1] + bottom_right[1]) / 4
+        center = (center_x, center_y)
 
         # Return the corners and middle points in a structured dictionary
         positions = {
@@ -176,7 +181,8 @@ class ImageMethods:
             'middle_top': middle_top,
             'middle_right': middle_right,
             'middle_bottom': middle_bottom,
-            'middle_left': middle_left
+            'middle_left': middle_left,
+            'center' : center
         }
         return positions, area
 
