@@ -70,26 +70,24 @@ class transfer_funtion_class:
     def __init__(self,numerator,denominator): 
         self.numerator = numerator
         self.denominator = denominator
-        ss = ctl.tf2ss(numerator,denominator)
-        self.A = np.array(np.array([[-5.731, -6.473, -0.003582, -0.00167],
-                          [7.195, -0.02194, -8.354, -0.7413],
-                          [-2.26, 8.258, -13.42, -83.66],
-                          [0.3076, -0.002601, -1.61, -10.72]]))
-        print(self.A)
-        self.B = np.array(np.array([[0.5814],[-0.5942],[0.5476],[-0.003237]]))
-        self.C = np.array(np.array([[8.979, -0.02903, 0.0001338, 4.864e-7]]))
-        self.D  = np.array(np.array([[0]]))
-        self.x = np.zeros((self.A.shape[0],))
-        self.pre_time = 0
+        TF = ctl.TransferFunction(numerator,denominator)
+        ctl.c2d(TF,0.25,method="zoh")
+        self.ss = ctl.tf2ss(TF)
+        self.A = self.ss.A
+        self.x = np.zeros(self.A.shape[0],)
+        self.pre_time = time.time()
         
 
     def impliment_transfer_function(self,input): 
         time_now = time.time()
         t_s = time_now-self.pre_time
-          
+        ss = ctl.c2d(self.ss,t_s,"foh")
+        self.A =ss.A
+        self.B =ss.B
+        self.C =ss.C
+        self.D =ss.D
         # State update equation: x(k+1) = Ax(k) + Bu(k)      
-        dx = np.dot(self.A,self.x) + np.dot(self.B,input)  
-        self.x = self.x + dx * t_s #Discrete-time state update
+        self.x  = np.dot(self.A,self.x) + np.dot(self.B,input)  
         # output equation: y(k) = Cx(k) + Du(k)
         output = np.dot(self.C,self.x) + self.D * input  
         self.pre_time=time_now
