@@ -19,17 +19,23 @@ class ImageHandler:
             "visual_long_distance" : [[0, 0, 0],[40, 200, 170]],
         }
         self.feed_image = None
+        self.feed_image2 = None
         self.show_hsv = None
         self.cooldown = 0
         self.Ids_list= []   
         self.aruco_printed = 0 
         self.bench_box_image = None
         
-    def show_image(self):
-        ImageMethods.showImage(self.feed_image)
+    def show_image(self, double):
+        if not double:
+            ImageMethods.showImage(self.feed_image)
+        else:
+            showImage = ImageMethods.stack_images([self.feed_image,self.feed_image2])
+            ImageMethods.showImage(showImage)
         
     def find_bench(self, front):
         image_edit = self.feed_image.copy()
+        image_edit2 = self.feed_image2.copy()
         hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
@@ -37,9 +43,12 @@ class ImageHandler:
         positions, area = ImageMethods.get_box_info(bench)
         if front:size = 8000000/area
         else: size = 14000000/area
-        ImageMethods.showImage(image_edit)
+        ids = self.aruco_handler2(image_edit)
+        ids = self.aruco_handler2(image_edit2)
+        showImage = ImageMethods.stack_images([image_edit,image_edit2])
+        ImageMethods.showImage(showImage)
         return size, positions
-
+        
 
     def find_box(self,cv_image,image_edit,hsv_range_name,min_box_area,draw:bool):
         dimensions = cv_image.shape 
@@ -62,6 +71,12 @@ class ImageHandler:
     def aruco_handler(self,cv_image,image_edit,the_box):
         #reads AruCo codes and print them if there noe more pipeline
         self.Ids_list= ImageMethods.read_AruCo(cv_image,image_edit,self.Ids_list)
+        ids = ImageMethods.filtered_ids_list(self.Ids_list)
+        return ids
+
+    def aruco_handler2(self,image):
+        #reads AruCo codes and print them if there noe more pipeline
+        self.Ids_list= ImageMethods.read_AruCo2(image,self.Ids_list)
         ids = ImageMethods.filtered_ids_list(self.Ids_list)
         return ids
 

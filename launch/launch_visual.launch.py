@@ -42,9 +42,9 @@ def generate_launch_description():
         output='screen'
     )
 
-    front_cam_node = Node(
+    visual_inspection_node = Node(
         package = package_name,
-        executable= 'front_cam_node',
+        executable= 'visual_inspection_node',
         output='screen'
     )
 
@@ -54,6 +54,7 @@ def generate_launch_description():
         output='screen'
     )
     
+    
  
     
 
@@ -61,6 +62,6 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        front_cam_node,
+        visual_inspection_node,
         up_down_node
     ])

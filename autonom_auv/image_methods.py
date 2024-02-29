@@ -267,6 +267,18 @@ class ImageMethods:
         return Ids_list
     
     @staticmethod
+    def read_AruCo2(image,Ids_list):
+        "Takes the image and reads the aruco code and adds the Id to the given list"
+        gray= cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+        dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
+        corners, ids, rejected = aruco.detectMarkers(gray, dict)
+        
+        if ids is not None and len(ids) > 0:
+            aruco.drawDetectedMarkers(image,corners,ids)
+            Ids_list.append(ids[0][0])
+        return Ids_list
+    
+    @staticmethod
     def filtered_ids_list(list):
         "Filter the list and gives back a list without duplicates"
         filtered_list=[]
