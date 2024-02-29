@@ -255,16 +255,16 @@ class ImageMethods:
         return angel_deg, Cooldown
 
     @staticmethod
-    def read_AruCo(image,image_edit,Ids_list):
+    def read_AruCo(image,id_list):
         "Takes the image and reads the aruco code and adds the Id to the given list"
-        gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
+        gray= cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
         
         if ids is not None and len(ids) > 0:
-            aruco.drawDetectedMarkers(image_edit,corners,ids)
-            Ids_list.append(ids[0][0])
-        return Ids_list
+            aruco.drawDetectedMarkers(image,corners,ids)
+            id_list.append(ids[0][0])
+        return id_list
     
     @staticmethod
     def filtered_ids_list(list):
