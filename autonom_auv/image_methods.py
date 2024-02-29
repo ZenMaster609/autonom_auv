@@ -54,9 +54,9 @@ class ImageMethods:
 
 
     @staticmethod 
-    def color_filter(Image_inn, range:list):
-        "Takes in an image and HSV range, return a black and white image"  
-        image_HSV = cv2.cvtColor(Image_inn, cv2.COLOR_BGR2HSV)
+    def color_filter(image, range:list):
+        "Takes in an image and a HSV range, return a black and white image"  
+        image_HSV = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         HSV_lower = np.array(range[0])
         HSV_upper = np.array(range[1])
         mask = cv2.inRange(image_HSV,HSV_lower,HSV_upper)
@@ -126,17 +126,17 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_the_box(Box_list):
+    def find_the_box(boxes):
         "Takes in a list of boxes return the boxes highest in the picture"
         min_y_value=1920
         
-        if len(Box_list)>0:
-            for i in range(len(Box_list)):
-                y_value_list = Box_list[i][:,1]
+        if len(boxes)>0:
+            for i in range(len(boxes)):
+                y_value_list = boxes[i][:,1]
                 if min(y_value_list)<=min_y_value: 
                     min_y_value = min(y_value_list)
                     box_index = i 
-            box=Box_list[box_index]
+            box=boxes[box_index]
             return box 
             
         else: return None
@@ -191,32 +191,32 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_Center(Image_inn,the_box, draw:bool): 
+    def find_Center(image, box, draw:bool): 
         "Draw a dot in the center of the box, return Center cordinates"  
-        if the_box is not None:
-            center=((the_box[0]+the_box[2])/2)
+        if box is not None:
+            center=((box[0]+box[2])/2)
             Center_X=int(center[0])
             Center_Y=int(center[1])
-            cv2.circle(Image_inn,(Center_X,Center_Y),10,(0,0,255),-1)
+            cv2.circle(image,(Center_X,Center_Y),10,(0,0,255),-1)
             return Center_X,Center_Y
         else: return 960,600
 
 
     @staticmethod
-    def find_angle_box(the_box,offset=0):
-        if the_box is not None:
+    def find_angle_box(box,offset=0):
+        if box is not None:
             "Finding the angle of the object between the horizontal frame and the longest vector"
-            Vec_1=the_box[0]-the_box[1]
-            Vec_2=the_box[1]-the_box[2]
+            Vec_1=box[0]-box[1]
+            Vec_2=box[1]-box[2]
             lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
             lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
 
             if lenght_Vec_1>lenght_Vec_2:
-                diff = (the_box[0][0]+the_box[1][0]-1820)   
+                diff = (box[0][0]+box[1][0]-1820)   
                 Vector = Vec_1
                 lenght_Vec = lenght_Vec_1   
             else:
-                diff=(the_box[1][0]+the_box[2][0]-1820)
+                diff=(box[1][0]+box[2][0]-1820)
                 Vector = Vec_2
                 lenght_Vec = lenght_Vec_2
                 
@@ -278,11 +278,7 @@ class ImageMethods:
 
 
 
-    @staticmethod
-    def find_bench(image, lower:list, upper:list):
-        hsv_image = ImageMethods.color_filter(image,lower,upper) 
-        ImageMethods.showImage(ImageMethods.stack_images)
-        return hsv_image
+    
     
 
 
