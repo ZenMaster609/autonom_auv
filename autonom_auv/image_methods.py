@@ -255,7 +255,7 @@ class ImageMethods:
         return angel_deg, Cooldown
 
     @staticmethod
-    def read_AruCo(image_in,image_edit,Ids_list):
+    def read_AruCo(image,image_edit,Ids_list):
         "Takes the image and reads the aruco code and adds the Id to the given list"
         gray= cv2.cvtColor(image_in,cv2.COLOR_BGR2GRAY)
         dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
