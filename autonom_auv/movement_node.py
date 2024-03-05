@@ -39,7 +39,6 @@ class MovementNode(Node):
         self.odom_y = msg.pose.pose.position.y
         self.odom_z = msg.pose.pose.position.z
         self.odom_roll = msg.pose.pose.orientation.x
-        self.odom_pitch = msg.pose.pose.orientation.y
         self.odom_yaw = msg.pose.pose.orientation.z
 
     def movement_callback(self,msg):
