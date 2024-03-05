@@ -15,7 +15,7 @@ import time
 
 class PipelineImageNode(Node):
     def __init__(self,mode):
-        super().__init__('image_processor') 
+        super().__init__('mission_pipeline_node') 
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.bridge = CvBridge()

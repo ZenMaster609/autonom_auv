@@ -42,15 +42,15 @@ def generate_launch_description():
         output='screen'
     )
 
-    visual_inspection_node = Node(
+    m_bench_node = Node(
         package = package_name,
-        executable= 'visual_inspection_node',
+        executable= 'm_bench_node',
         output='screen'
     )
 
-    blind_movement_node = Node(
+    fake_dvl_node = Node(
         package = package_name,
-        executable= 'blind_movement_node',
+        executable= 'fake_dvl_node',
         output='screen'
     )
     
@@ -62,6 +62,7 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        visual_inspection_node,
-        up_down_node
+        m_bench_node,
+        up_down_node,
+        fake_dvl_node
     ])

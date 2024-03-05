@@ -53,10 +53,9 @@ def generate_launch_description():
       #  output='screen'
     #)
 
-    pipeline_image_node = Node(
+    m_pipeline_node = Node(
         package = package_name,
-        executable= 'pipeline_image_node',
-        parameters=[{'save_images': True}],
+        executable= 'm_pipeline_node',
         output='screen'
     )
     
@@ -73,6 +72,6 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
-        pipeline_image_node,
+        m_pipeline_node,
         movement_node
     ])

@@ -29,11 +29,11 @@ setup(
     entry_points={
         'console_scripts': [
             'movement_node = autonom_auv.movement_node:main',
-            'pipeline_image_node = autonom_auv.pipeline_image_node:main',
-            'visual_inspection_node = autonom_auv.visual_inspection_node:main',
+            'm_pipeline_node = autonom_auv.m_pipeline_node:main',
+            'm_bench_node = autonom_auv.m_bench_node:main',
             'fake_controller_node = autonom_auv.fake_controller_node:main',
             'up_down_node = autonom_auv.up_down_node:main',
-            'blind_movement_node = autonom_auv.blind_movement_node:main',
+            'fake_dvl_node = autonom_auv.fake_dvl_node:main',
         ],
     },
 )

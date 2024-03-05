@@ -33,7 +33,6 @@ class VisualInspectionNode(Node):
         self.handler = ImageHandler()
         self.x_controller = PidController()
         self.y_controller = PidController()
-        self.z_controller = PidController()
         self.blind_pid = [PidController() for _ in range(6)]
         self.pos = [None,None,None,None,None,None]
         self.target_pos = [None,None,None,None,None,None]

@@ -10,6 +10,7 @@ import time
 import subprocess
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
+import cv2.aruco as aruco
 
 class ImageHandler:
     def __init__(self):
@@ -22,7 +23,8 @@ class ImageHandler:
         self.feed_image2 = None
         self.show_hsv = None
         self.cooldown = 0
-        self.Ids_list= []   
+        self.Id_list= []   
+        self.filtered_list = []
         self.aruco_printed = 0 
         self.bench_box_image = None
         
@@ -43,8 +45,7 @@ class ImageHandler:
         positions, area = ImageMethods.get_box_info(bench)
         if front:size = 8000000/area
         else: size = 14000000/area
-        ids = self.aruco_handler2(image_edit)
-        ids = self.aruco_handler2(image_edit2)
+        self.aruco_handler2(image_edit, image_edit2)
         showImage = ImageMethods.stack_images([image_edit,image_edit2])
         ImageMethods.showImage(showImage)
         return size, positions
@@ -74,11 +75,16 @@ class ImageHandler:
         ids = ImageMethods.filtered_ids_list(self.Ids_list)
         return ids
 
-    def aruco_handler2(self,image):
-        #reads AruCo codes and print them if there noe more pipeline
-        self.Ids_list= ImageMethods.read_AruCo2(image,self.Ids_list)
-        ids = ImageMethods.filtered_ids_list(self.Ids_list)
-        return ids
+    def aruco_handler2(self,image1, image2=None):
+        self.Id_list= ImageMethods.read_AruCo(image1,self.Id_list)
+        if image1 is not None:
+            self.Id_list = ImageMethods.read_AruCo(image2,self.Id_list)
+
+    def filter_arucos(self):
+        return ImageMethods.filtered_ids_list(self.filtered_list)
+    
+
+    
 
 
 class logging_data: 
