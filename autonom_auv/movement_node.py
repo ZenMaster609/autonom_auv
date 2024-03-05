@@ -15,7 +15,9 @@ class MovementNode(Node):
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(Twist,'/movement', self.movement_callback,10)
         self.yaw_controller = PidController()
-        self.yaw_tf =  transfer_funtion_class([121.3, 72.41], [1, 7.359, 165.2, 72.42])  
+        self.yaw_tf =  transfer_funtion_class([3.74, 61.48, 2546], [1, 38.65, 519.6, 2533])  
+        self.x_tf = transfer_funtion_class([3.606,40.12,1421],[1, 16.98, 273.3, 1411])
+        self.y_tf = transfer_funtion_class([4.014, 83.39, 2173],[1, 31.09, 357.9, 2170])
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
@@ -26,6 +28,8 @@ class MovementNode(Node):
     def publish_movement(self):
         cmd_vel = Twist()
         self.yaw = self.yaw_tf.impliment_transfer_function(self.yaw)
+        self.x = self.x_tf.impliment_transfer_function(self.x)
+        self.y = self.y_tf.impliment_transfer_function(self.y)
         cmd_vel.linear.x = self.x
         cmd_vel.linear.y = self.y
         cmd_vel.linear.z = self.z
