@@ -22,7 +22,7 @@ class FakeDvlNode(Node):
         super().__init__('fake_dvl_node')
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(Twist, '/target', self.move_pos_callback, 10)
-        self.publisher1 = self.create_publisher(Twist, '/cmd_vel', 10)
+        self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
         self.publisher2 = self.create_publisher(Bool, '/move_bool', 10)
         self.timer = self.create_timer(0.2, self.timer_callback)
         self.blind_pid = [PidController() for _ in range(6)]
@@ -95,7 +95,7 @@ class FakeDvlNode(Node):
             self.send_false()
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = round(self.blind_pid[axis].PID_controller(offset, 80, 0.0, 0.0, 100, 0), 4)
+            vel = round(self.blind_pid[axis].PID_controller(offset, 80*self.speed_scale, 0.0, 0.0, 100, 0), 4)
             self.send_movement(axis=axis, magnitude = vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {vel}, rot = {self.pos[5]}") 
             #self.get_logger().info(f"odoms: {self.pos}") 

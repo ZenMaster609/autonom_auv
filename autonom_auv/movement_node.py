@@ -13,7 +13,7 @@ class MovementNode(Node):
         super().__init__('movement_node')
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
-        self.create_subscription(Twist,'/movement', self.movement_callback,10)
+        self.create_subscription(Twist,'/tf_movement', self.movement_callback,10)
         self.yaw_controller = PidController()
         self.yaw_tf =  transfer_funtion_class([3.74, 61.48, 2546], [1, 38.65, 519.6, 2533])  
         self.x_tf = transfer_funtion_class([3.606,40.12,1421],[1, 16.98, 273.3, 1411])

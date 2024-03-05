@@ -27,6 +27,7 @@ class ImageHandler:
         self.filtered_list = []
         self.aruco_printed = 0 
         self.bench_box_image = None
+        self.scale_factor = 0.5
         
     def show_image(self, double):
         if not double:
@@ -36,52 +37,48 @@ class ImageHandler:
             ImageMethods.showImage(showImage)
         
     def find_bench(self, front):
-        image_edit = self.feed_image.copy()
-        image_edit2 = self.feed_image2.copy()
+        image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
+        image_edit2 = ImageMethods.scale_image(self.feed_image2.copy(), scale_factor=self.scale_factor)
+        self.dims = image_edit.shape
         hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
         bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
         positions, area = ImageMethods.get_box_info(bench)
-        if front:size = 8000000/area
-        else: size = 14000000/area
-        self.aruco_handler2(image_edit, image_edit2)
+        if front:size = (self.scale_factor**2)*8000000/area
+        else: size = (self.scale_factor**2)*14000000/area
+        self.aruco_handler(image_edit, image_edit2)
         showImage = ImageMethods.stack_images([image_edit,image_edit2])
         ImageMethods.showImage(showImage)
         return size, positions
         
 
-    def find_box(self,cv_image,image_edit,hsv_range_name,min_box_area,draw:bool):
-        dimensions = cv_image.shape 
-        hsv_range = self.hsv_range_bib[hsv_range_name]
-        mask = ImageMethods.color_filter(cv_image,hsv_range)
-        mask = cv2.line(mask,(0,600),(dimensions[1],600),(0,0,0),10)     
-        box_list = ImageMethods.find_boxes(mask, image_edit, min_box_area, draw)
-        the_box = ImageMethods.find_the_box(box_list)
-        return the_box
-    
-
-    def find_box_info(self,the_box,image_edit, angel_offset,draw:bool):
-        angle_deg = ImageMethods.find_angle_box(the_box,angel_offset)
-        angle_deg, self.cooldown = ImageMethods.angel_cooldown(angle_deg,self.cooldown)
-        center_x,center_y = ImageMethods.find_Center(image_edit,the_box, draw)
-        cv2.putText(image_edit, f"{int(angle_deg)}",[1600,1050], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
+    def find_pipeline(self):
+        image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
+        self.dims = image_edit.shape
+        hsv_range = self.hsv_range_bib["pipeline_sim"]
+        hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
+        self.aruco_handler(image_edit)
+        cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
+        box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*70000, False)
+        highest_box = ImageMethods.find_highest_box(box_list)
+        angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
+        angle_deg, self.cooldown = ImageMethods.angle_cooldown(angle_deg,self.cooldown)
+        center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
+        cv2.putText(image_edit, f"{int(angle_deg)}",[800,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
+        ImageMethods.showImage(image_edit)
         return angle_deg,center_x,center_y
-    
+  
 
-    def aruco_handler(self,cv_image,image_edit,the_box):
-        #reads AruCo codes and print them if there noe more pipeline
-        self.Ids_list= ImageMethods.read_AruCo(cv_image,image_edit,self.Ids_list)
-        ids = ImageMethods.filtered_ids_list(self.Ids_list)
-        return ids
 
-    def aruco_handler2(self,image1, image2=None):
+
+    def aruco_handler(self,image1, image2=None):
         self.Id_list= ImageMethods.read_AruCo(image1,self.Id_list)
-        if image1 is not None:
+        if image2 is not None:
             self.Id_list = ImageMethods.read_AruCo(image2,self.Id_list)
 
     def filter_arucos(self):
-        return ImageMethods.filtered_ids_list(self.filtered_list)
+        self.filtered_list = ImageMethods.filtered_ids_list(self.Id_list)
     
 
     

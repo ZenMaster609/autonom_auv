@@ -18,13 +18,14 @@ class PipelineImageNode(Node):
         super().__init__('mission_pipeline_node') 
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
-        self.create_timer(0.05, self.timer_callback1)
-        #self.create_timer(1, self.timer_callback2)
-        self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)  
         self.bridge = CvBridge()
-        self.angular_controller = PidController()
+        self.publisher_ = self.create_publisher(Twist, '/tf_movement', 10)       
+
+        self.timer = self.create_timer(0.05, self.timer_callback1)
+        self.timer = self.create_timer(1, self.timer_callback2)
+        self.angeleuar_controller = PidController()
         self.y_controller = PidController()
-        self.handler = ImageHandler()
+        self.image_pipe = ImageHandler()
         self.logger = logging_data()
         self.mode=mode
         self.time_start = time.time()
@@ -35,12 +36,14 @@ class PipelineImageNode(Node):
         self.logger.plot_data_table(self.colum1,self.colum2,self.filtered_ids,self.plot_names)
         self.get_logger().info(f'I ran')
 
+
+
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         movement = Twist()
         movement.linear.x = 0.4
         movement.angular.z = ang_vel
         movement.linear.y = linear_y_vel
-        self.publisher1.publish(movement)
+        self.publisher_.publish(movement)
     
     def odom_callback(self, msg):
         self.odom_x = msg.pose.pose.position.x
@@ -51,40 +54,42 @@ class PipelineImageNode(Node):
         self.angular_yaw = msg.twist.twist.angular.z
 
     def listener_callback(self, data):
-        self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8") 
-
+        self.cv_image = self.bridge.imgmsg_to_cv2(data, "bgr8") 
+        #self.cv_image = cv2.resize(self.cv_image, (0,0), fx = 0.5, fy = 0.5)  
 
     def timer_callback1(self):
-        if self.handler.feed_image is not None:
-            #print(f"t_s: {time.time()-self.time_start}")
+        if self.cv_image is not None:
+            print(f"t_s: {time.time()-self.time_start}")
             self.time_start = time.time()
-            #print(f"time1: {self.time_start-time.time()}")
+            self.image_edit = self.cv_image.copy()
+            # print(f"time1: {self.time_start-time.time()}")
+            self.the_box = self.image_pipe.find_box(self.cv_image,self.image_edit,"pipeline_sim",70000,True)
             #print(f"time2: {self.time_start-time.time()}")
-            angle_deg,center_x,center_y = self.handler.find_pipeline()
+            angle_deg,center_x,center_y = self.image_pipe.find_box_info(self.the_box,self.image_edit,90,True)
             #print(f"time3: {self.time_start-time.time()}")
-            set_point = (self.handler.dims[0])/2
-            offsett_x = PidController.calculate_parameters((center_x),self.handler.dims[1]/2)
+            set_point = (self.cv_image.shape[0])/2
+            offsett_x = PidController.calculate_parameters((center_x),960)
             # print(f"time4: {self.time_start-time.time()}")
             if self.mode ==1:
-                angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,1000)
+                angle_vel =self.angeleuar_controller.PID_controller(angle_deg,(15),0.0,0.0,1000)
                 linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
                 self.send_movement(angle_vel,linear_y_vel)            
             else:
-                angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
+                angle_vel= self.angeleuar_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
                 self.send_movement(angle_vel)
             #print(f"time5: {self.time_start-time.time()}")
-            #self.handler.show_image(False)
+            ImageMethods.showImage(self.image_edit,0.7)
             #print(f"time6: {self.time_start-time.time()}")
-            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
+            self.plot_names=["","Angel offset in degrees","Ideal Angeluar Velocity","Real Angeluar Velocity"]
             self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )
             self.colum1 = ["P","I","D","Acceleration","min area box"]
             self.colum2 = [2,0,0,0.4654,70000]
             #print(f"time7: {self.time_start-time.time()}")
 
 
-    # def timer_callback2(self):
-    #    if self.cv_image is not None:
-    #     self.filtered_ids = self.handler.aruco_handler(self.cv_image,self.image_edit,self.the_box)
+    def timer_callback2(self):
+       if self.cv_image is not None:
+        self.filtered_ids = self.image_pipe.aruco_handler(self.cv_image,self.image_edit,self.the_box)
         
 def main(args=None):
     rclpy.init(args=args)

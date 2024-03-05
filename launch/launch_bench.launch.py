@@ -53,6 +53,12 @@ def generate_launch_description():
         executable= 'fake_dvl_node',
         output='screen'
     )
+
+    movement_node = Node(
+        package = package_name,
+        executable= 'movement_node',
+        output='screen'
+    )
     
     
  
@@ -62,6 +68,7 @@ def generate_launch_description():
         rsp,
         gazebo,
         spawn_entity,
+        movement_node,
         m_bench_node,
         up_down_node,
         fake_dvl_node

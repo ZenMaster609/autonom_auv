@@ -8,7 +8,7 @@ import time
 class ImageMethods: 
 
     @staticmethod
-    def scale_image(image, scale_factor):
+    def scale_image(image, scale_factor = 0.5):
         new_width = int(image.shape[1] * scale_factor)
         new_height = int(image.shape[0] * scale_factor)
         resized_image = cv2.resize(image, (new_width, new_height))
@@ -25,7 +25,7 @@ class ImageMethods:
         cv2.imwrite(photos_path, image)
 
     @staticmethod
-    def showImage(image,scale=0.5):
+    def showImage(image,scale=1):
         image = cv2.resize(image, (0, 0),fx=scale,fy=scale)
         cv2.imshow("window", image)
         key = cv2.waitKey(1)
@@ -126,10 +126,9 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_the_box(boxes):
+    def find_highest_box(boxes):
         "Takes in a list of boxes return the boxes highest in the picture"
         min_y_value=1920
-        
         if len(boxes)>0:
             for i in range(len(boxes)):
                 y_value_list = boxes[i][:,1]
@@ -203,7 +202,7 @@ class ImageMethods:
 
 
     @staticmethod
-    def find_angle_box(box,offset=0):
+    def find_angle_box(box,offset=0, width= 960):
         if box is not None:
             "Finding the angle of the object between the horizontal frame and the longest vector"
             Vec_1=box[0]-box[1]
@@ -212,11 +211,11 @@ class ImageMethods:
             lenght_Vec_2=math.sqrt(Vec_2[0]**2+Vec_2[1]**2)
 
             if lenght_Vec_1>lenght_Vec_2:
-                diff = (box[0][0]+box[1][0]-1820)   
+                diff = (box[0][0]+box[1][0]-width)   
                 Vector = Vec_1
                 lenght_Vec = lenght_Vec_1   
             else:
-                diff=(box[1][0]+box[2][0]-1820)
+                diff=(box[1][0]+box[2][0]-width)
                 Vector = Vec_2
                 lenght_Vec = lenght_Vec_2
                 
@@ -226,24 +225,24 @@ class ImageMethods:
                     direction=-1
                 else: direction=1
             angle=math.acos(Vector[0]/lenght_Vec)
-            angel_deg=(angle*360/2/math.pi-offset)*direction
-            return angel_deg
+            angle_deg=(angle*360/2/math.pi-offset)*direction
+            return angle_deg
         else: return 0 
 
     @staticmethod
-    def angel_cooldown(angel_deg,Cooldown):
+    def angle_cooldown(angle_deg,Cooldown):
         if Cooldown == 0:
-            if angel_deg==-90:
+            if angle_deg==-90:
                 Cooldown = -10
-            elif angel_deg == 90:
+            elif angle_deg == 90:
                 Cooldown = 10
 
-        if angel_deg==-90 or angel_deg ==90:
+        if angle_deg==-90 or angle_deg ==90:
             if Cooldown > 0:
-                angel_deg=abs(angel_deg)
+                angle_deg=abs(angle_deg)
                 Cooldown -= 1 
             if Cooldown < 0:
-                angel_deg=-abs(angel_deg)
+                angle_deg=-abs(angle_deg)
                 Cooldown += 1
         else:
             if Cooldown > 0:
@@ -252,7 +251,7 @@ class ImageMethods:
                 Cooldown += 1
             else:
                 Cooldown = 0
-        return angel_deg, Cooldown
+        return angle_deg, Cooldown
 
     @staticmethod
     def read_AruCo(image,id_list):
@@ -266,17 +265,7 @@ class ImageMethods:
             id_list.append(ids[0][0])
         return id_list
     
-    @staticmethod
-    def read_AruCo2(image,Ids_list):
-        "Takes the image and reads the aruco code and adds the Id to the given list"
-        gray= cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-        dict= aruco.getPredefinedDictionary(aruco.DICT_5X5_100)
-        corners, ids, rejected = aruco.detectMarkers(gray, dict)
-        
-        if ids is not None and len(ids) > 0:
-            aruco.drawDetectedMarkers(image,corners,ids)
-            Ids_list.append(ids[0][0])
-        return Ids_list
+
     
     @staticmethod
     def filtered_ids_list(list):
