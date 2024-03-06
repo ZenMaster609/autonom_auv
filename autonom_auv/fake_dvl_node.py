@@ -28,7 +28,10 @@ class FakeDvlNode(Node):
         self.blind_pid = [PidController() for _ in range(6)]
         self.pos = [None,None,None,None,None,None]
         self.target_pos = [None,None,None,None,None,None]
-        self.speed_scale = 2
+        self.speed_scale = 1
+        self.zero_yaw = False
+        self.top_speed = 10
+        self.pid = [80, 0.05, 0]
 
     def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0, axis = 6, magnitude = 0.0):
         msg = Twist()
@@ -61,15 +64,29 @@ class FakeDvlNode(Node):
 
     def move_pos_callback(self, msg):
         axis = int(msg.linear.x); distance = msg.linear.y
+        if distance == 0.0:
+            self.home1()
+            return 
         if axis > 2:distance = math.radians(distance)
         self.target_pos[axis] = round((self.remap_axes(axis) + distance), 4)
         self.get_logger().info(f"new target = {self.target_pos[axis]}, pos = {self.pos[axis]}, distance = {distance}")
 
+    def home1(self):
+        self.target_pos[5] = 0
+        self.zero_yaw = True
+        
+    
+    def home2(self):
+        if self.zero_yaw and abs(self.pos[5]) < 0.005:
+            self.target_pos[0] = 0
+            self.target_pos[1] = 0
+            self.zero_yaw = False
 
     def timer_callback(self):
         self.check_goal_pose(0) #sjekk x
         self.check_goal_pose(1) #sjekk y
         self.check_goal_pose(5) #sjekk yaw
+        self.home2()
 
     def remap_axes(self, axis):
         if axis ==0:
@@ -95,9 +112,10 @@ class FakeDvlNode(Node):
             self.send_false()
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = round(self.blind_pid[axis].PID_controller(offset, 80*self.speed_scale, 0.0, 0.0, 100, 0), 4)
+            vel = self.blind_pid[axis].PID_controller(offset, self.pid[0], self.pid[1], self.pid[2], 100, 0.0)
+            if vel > self.top_speed:vel = self.top_speed
             self.send_movement(axis=axis, magnitude = vel)
-            self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {vel}, rot = {self.pos[5]}") 
+            self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
             #self.get_logger().info(f"odoms: {self.pos}") 
 
 
