@@ -23,6 +23,7 @@ class MBenchNode(Node):
         self.create_subscription(Image,'/camera2/image_raw',  self.cam2_callback,10)
         self.create_subscription(Image,'/camera/image_raw',  self.cam1_callback,10)
         self.create_subscription(Bool, '/move_bool', self.bool_callback, 10)
+        self.create_timer(0.05, self.timer_callback)
         self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
         self.publisher2 = self.create_publisher(Float32, '/up_down', 10)
         self.publisher3 = self.create_publisher(Twist, '/target', 10)
@@ -59,65 +60,70 @@ class MBenchNode(Node):
         self.handler.feed_image2 = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
     def cam2_callback(self, data):
-        try:
-            self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-            size, positions = self.handler.find_bench(self.front)
-            distance_offset = size - self.desired_distance
-        #self.get_logger().info(self.self.handler.dims[1]/2)
-        except Exception as e:
-             self.handler.show_image(True)
-        if self.move_bool == False:
-            if self.mode == 0: #Reis til venstre hjørne
-                y_offset = self.handler.dims[1]/2 - positions['middle_left'][0]
-                if abs(distance_offset) < 5 and abs(y_offset) < self.handler.dims[1]/8: #hvis innen 3 cm distanse og innen 50 piksler fra venstre linje
-                    self.mode = 1 #bytt til modus 1
-            elif self.mode == 1:
-                y_offset = self.handler.dims[1]/2 - positions['middle_right'][0]
-                if abs(distance_offset) < 5 and abs(y_offset) < self.handler.dims[1]/8:
-                    self.mode = 2
-            if self.mode < 2:
-                x_vel = self.x_controller.PID_controller(distance_offset,20,0.0,0.0,5000)
-                y_vel = self.y_controller.PID_controller(y_offset,6,0.0,0.0,5000)
-                self.get_logger().info(f"distance_offset = {distance_offset}, x_vel = {x_vel}, y_offset = {y_offset}, y_vel = {y_vel}")
-                self.send_movement(x=x_vel, y=y_vel)
-            elif self.mode == 2:
-                self.move_pos(1,-2)  #safety distance y axis
-                self.mode = 3
-            elif self.mode == 3:
-                self.move_pos(5,90) # 90 grader venstre 
-                if self.front == True:self.mode = 4
-                else:self.mode = 6
-            elif self.mode == 4:
-                self.move_pos(1,-3.7) # 3m y
-                self.mode = 5
-                self.handler.filter_arucos()
-                self.get_logger().info(f"Aruco list: {self.handler.filtered_list}")
-            elif self.mode == 5:
-                self.move_pos(5,90) #90 grader venstre 
-                self.mode = 0
-                self.front = False #Now we are behind the bench
-            elif self.mode == 6:
-                self.move_pos(1, -1.5)
-                self.mode = 7
-            elif self.mode == 7:
-                y_offset = self.handler.dims[1]/2 - positions['center'][0] - 30
-                y_vel = self.y_controller.PID_controller(y_offset,3,0.0,0.0,5000)
-                self.get_logger().info(f"y_offset = {y_offset}, y_vel = {y_vel}")
-                self.send_movement(y=y_vel)
-                if abs(y_offset) < 5:
-                    self.publish_z(1.6)
-                    self.mode = 8
-            elif self.mode == 8:
-                self.move_pos(5, 90.2)
-                self.mode = 9
-            elif self.mode ==9:
-                self.move_pos(1,-4)
-                self.handler.filter_arucos() #filtrer koder
-                self.mode =10
-            elif self.mode ==10:
-                self.get_logger().info(f"Aruco list: {self.handler.filtered_list}")
-                self.send_movement(0.0,0.0,0.0,0.0,0.0,0.0)
+        self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
+        
+    def timer_callback(self):
+        if self.handler.feed_image is not None:    
+            try:
+                size, positions = self.handler.find_bench(self.front)
+                distance_offset = size - self.desired_distance
+            except Exception as e:
+                self.handler.show_image(True)
+                #self.get_logger().info("Bench not found")
+            if self.move_bool == False:
+                if self.mode == 0: #Reis til venstre hjørne
+                    y_offset = self.handler.dims[1]/2 - positions['middle_left'][0]
+                    if abs(distance_offset) < 5 and abs(y_offset) < self.handler.dims[1]/8: #hvis innen 3 cm distanse og innen 50 piksler fra venstre linje
+                        self.mode = 1 #bytt til modus 1
+                elif self.mode == 1:
+                    y_offset = self.handler.dims[1]/2 - positions['middle_right'][0]
+                    if abs(distance_offset) < 5 and abs(y_offset) < self.handler.dims[1]/8:
+                        self.mode = 2
+                if self.mode < 2:
+                    x_vel = self.x_controller.PID_controller(distance_offset,20,0.0,0.0,5000)
+                    y_vel = self.y_controller.PID_controller(y_offset,6,0.0,0.0,5000)
+                    self.get_logger().info(f"distance_offset = {distance_offset}, x_vel = {x_vel}, y_offset = {y_offset}, y_vel = {y_vel}")
+                    self.send_movement(x=x_vel, y=y_vel)
+                elif self.mode == 2:
+                    self.move_pos(1,-2)  #safety distance y axis
+                    self.mode = 3
+                elif self.mode == 3:
+                    self.move_pos(5,90) # 90 grader venstre 
+                    if self.front == True:self.mode = 4
+                    else:self.mode = 6
+                elif self.mode == 4:
+                    self.move_pos(1,-3.7) # 3m y
+                    self.mode = 5
+                    self.handler.filter_arucos()
+                    self.get_logger().info(f"Aruco list: {self.handler.filtered_list}")
+                elif self.mode == 5:
+                    self.move_pos(5,90) #90 grader venstre 
+                    self.mode = 0
+                    self.front = False #Now we are behind the bench
+                elif self.mode == 6:
+                    self.move_pos(1, -1.5)
+                    self.mode = 7
+                elif self.mode == 7:
+                    y_offset = self.handler.dims[1]/2 - positions['center'][0] - 30
+                    y_vel = self.y_controller.PID_controller(y_offset,20,0.0,0.0,5000)
+                    self.get_logger().info(f"y_offset = {y_offset}, y_vel = {y_vel}")
+                    self.send_movement(y=y_vel)
+                    if abs(y_offset) < 5:
+                        self.publish_z(1.6)
+                        self.mode = 8
+                elif self.mode == 8:
+                    self.move_pos(5, 90)
+                    self.mode = 9
+                elif self.mode ==9:
+                    self.move_pos(1,-4)
+                    self.handler.filter_arucos() #filtrer koder
+                    self.mode =10
+                elif self.mode ==10:
+                    self.get_logger().info(f"Aruco list: {self.handler.filtered_list}")
 
+
+
+    
     def move_pos(self, axis, distance):
         msg = Twist() 
         msg.linear.x = float(axis)
