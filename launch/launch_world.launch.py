@@ -11,7 +11,7 @@ def generate_launch_description():
 
     package_name='autonom_auv' 
  
-    world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'empty.world')
+    world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'bench.world')
 
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(

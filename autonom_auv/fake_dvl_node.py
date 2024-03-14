@@ -30,7 +30,7 @@ class FakeDvlNode(Node):
         self.target_pos = [None,None,None,None,None,None]
         self.speed_scale = 1
         self.zero_yaw = False
-        self.top_speed = 10.0
+        self.top_speed = 3.0
         self.pid = [80, 0.05, 0]
 
     def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0, axis = 6, magnitude = 0.0):
@@ -62,18 +62,10 @@ class FakeDvlNode(Node):
         msg.data = False
         self.publisher2.publish(msg)
 
-    def move_pos_callback(self, msg):
-        axis = int(msg.linear.x); distance = msg.linear.y
-        if distance == 0.0:
-            self.home1()
-            return 
-        if axis > 2:distance = math.radians(distance)
-        self.target_pos[axis] = round((self.remap_axes(axis) + distance), 4)
-        self.get_logger().info(f"new target = {self.target_pos[axis]}, pos = {self.pos[axis]}, distance = {distance}")
-
     def home1(self):
         self.target_pos[5] = 0
         self.zero_yaw = True
+        self.get_logger().info(f"HOMING")
         
     
     def home2(self):
@@ -96,27 +88,37 @@ class FakeDvlNode(Node):
         self.check_goal_pose(5) #sjekk yaw
         self.home2()
 
-    def remap_axes(self, axis):
-        if axis ==0:
-            if  3.2 > self.pos[5] > 3.11:pos_fixed = -self.pos[axis] 
-            elif 1.6 > self.pos[5] > 1.5:pos_fixed = -self.pos[1]
-            elif 4.65 > self.pos[5] > 4.75:pos_fixed = self.pos[1]
-            else:pos_fixed = self.pos[axis]
-        elif axis ==1:
-            if 3.2 > self.pos[5] > 3.1:pos_fixed = -self.pos[axis]
-            elif 1.6 > self.pos[5] > 1.5:pos_fixed = -self.pos[0]
-            elif 4.75 > self.pos[5] > 4.65:pos_fixed = self.pos[0]
-            else:pos_fixed = self.pos[axis]
-        else:pos_fixed = self.pos[axis]
-        return pos_fixed
+    def xytrig(self):
+        yaw, x, y = self.pos[5], self.pos[0], self.pos[1]
+        local_x = x * math.cos(yaw) + y * math.sin(yaw)
+        local_y = -x * math.sin(yaw) + y * math.cos(yaw)
+        return local_x, local_y
+
+    
+
+    def move_pos_callback(self, msg):
+        axis = int(msg.linear.x); distance = msg.linear.y
+        if distance == 0.0:
+            self.home1()
+            return
+        pos_fixed = self.pos[axis] 
+        if axis > 2:
+            distance = math.radians(distance)
+        elif axis == 0: pos_fixed, _ = self.xytrig()
+        elif axis == 1: _, pos_fixed = self.xytrig()          
+        self.target_pos[axis] = pos_fixed + distance
+        self.get_logger().info(f"new target = {self.target_pos[axis]}, pos = {pos_fixed}, distance = {distance}")
 
     def check_goal_pose(self, axis):
         if self.target_pos[axis] is None:return
-        pos_fixed = self.remap_axes(axis)
+        if axis == 0:pos_fixed, _ = self.xytrig()
+        elif axis == 1:_, pos_fixed = self.xytrig() 
+        else:pos_fixed = self.pos[axis]
         
         if abs(self.target_pos[axis] - pos_fixed) < 0.005: # Check if we are close to the target
             self.send_movement(axis=axis, magnitude =0.0)
             self.target_pos[axis] = None
+            self.get_logger().info(f"reached goal in axis {axis}")
             self.send_false()
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
@@ -124,7 +126,7 @@ class FakeDvlNode(Node):
             if vel > self.top_speed:vel = self.top_speed
             self.send_movement(axis=axis, magnitude = vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
-            #self.get_logger().info(f"odoms: {self.pos}") 
+
 
 
 

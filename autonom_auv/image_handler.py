@@ -36,21 +36,25 @@ class ImageHandler:
             showImage = ImageMethods.stack_images([self.feed_image,self.feed_image2])
             ImageMethods.showImage(showImage)
         
-    def find_bench(self, front):
+    def find_bench(self, front, mode):
         image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         image_edit2 = ImageMethods.scale_image(self.feed_image2.copy(), scale_factor=self.scale_factor)
+        self.aruco_handler(image_edit, image_edit2)
         self.dims = image_edit.shape
         hsv_range = self.hsv_range_bib["visual_long_distance"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
-        boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
-        bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
-        positions, area = ImageMethods.get_box_info(bench)
-        if front:size = (self.scale_factor**2)*8000000/area
-        else: size = (self.scale_factor**2)*14000000/area
-        self.aruco_handler(image_edit, image_edit2)
+        try:
+            boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
+            bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
+            positions, area = ImageMethods.get_box_info(bench)
+            angle = ImageMethods.find_angle_box(bench,180, self.dims[1])
+            if front:size = (self.scale_factor**2)*8000000/area
+            else: size = (self.scale_factor**2)*14000000/area
+        except Exception as e:_ = e
+        cv2.putText(image_edit, f"Mode:{mode}",[700,525], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
         showImage = ImageMethods.stack_images([image_edit,image_edit2])
         ImageMethods.showImage(showImage)
-        return size, positions
+        return size, positions, angle
         
 
     def find_pipeline(self):

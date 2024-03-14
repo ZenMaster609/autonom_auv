@@ -69,7 +69,7 @@ def generate_launch_description():
         gazebo,
         spawn_entity,
         movement_node,
-        m_bench_node,
         up_down_node,
-        fake_dvl_node
+        fake_dvl_node,
+        m_bench_node
     ])

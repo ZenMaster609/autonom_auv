@@ -145,3 +145,23 @@ class ImageProcessor(Node):
         corners, ids, rejected = aruco.detectMarkers(gray, dict)
         if ids is not None and len(ids) > 0:
            self.ids_list.append(ids[0][0])
+
+
+           # elif axis == 0 or axis == 1:
+           #     xpos, ypos = self.pos[0], self.pos[1] 
+           #     xdis, ydis = self.xytrig_move(distance, axis) 
+           #     self.target_pos[0] = xpos + xdis
+           #     self.target_pos[1] = ypos + ydis 
+           #     self.move_bools[0], self.move_bools[1] = True, True
+           #     self.get_logger().info(f"new x_target = {round(self.target_pos[0],2)}, x_pos = {round(xpos,2)}, x_dis = {round(xdis,2)}, new y_target = {round(self.target_pos[1],2)}, y_pos = {round(ypos,2)}, y_dis = {round(ydis,2)}")
+           #     return
+
+           def xytrig_move(self, distance, axis):
+           yaw = self.pos[5]
+           if axis == 0:  # If the movement command is in the x direction
+               xdis = distance * math.cos(yaw)
+               ydis = distance * math.sin(yaw)
+           else:  # If the movement command is in the y direction
+               xdis = distance * math.sin(yaw)
+               ydis = distance * -math.cos(yaw)
+           return xdis, ydis
