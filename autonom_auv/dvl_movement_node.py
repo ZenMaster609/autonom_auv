@@ -17,9 +17,9 @@ import signal
 from example_interfaces.srv import AddTwoInts
 import math
 
-class FakeDvlNode(Node):
+class DvlMovementNode(Node):
     def __init__(self):
-        super().__init__('fake_dvl_node')
+        super().__init__('dvl_movement_node')
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(Twist, '/target', self.move_pos_callback, 10)
         self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
@@ -136,7 +136,7 @@ class FakeDvlNode(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = FakeDvlNode()
+    node = DvlMovementNode()
     rclpy.spin(node)
     cv2.destroyAllWindows()
     node.destroy_node()

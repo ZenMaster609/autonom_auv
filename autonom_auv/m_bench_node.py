@@ -105,7 +105,7 @@ class MBenchNode(Node):
                 y_offset = self.handler.dims[1]/2 - self.positions[key][0]
                 x_vel = self.x_controller.PID_controller(distance_offset,20,0.001,0.0,5000)
                 y_vel = self.y_controller.PID_controller(y_offset,6,0.0001,0.0,5000)
-                self.get_logger().info(f"distance_offset = {distance_offset}, x_vel = {x_vel}, y_offset = {y_offset}, y_vel = {y_vel}")
+                self.get_logger().info(f"distance_offset = {round(distance_offset,4)}, x_vel = {round(x_vel,4)}, y_offset = {round(y_offset,4)}, y_vel = {round(y_vel,4)}")
                 self.send_movement(x=x_vel, y=y_vel)
                 if abs(distance_offset) < 5/accuracy and abs(y_offset) < self.handler.dims[1]/8*accuracy:
                     self.mode += 1  

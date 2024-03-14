@@ -31,9 +31,8 @@ setup(
             'movement_node = autonom_auv.movement_node:main',
             'm_pipeline_node = autonom_auv.m_pipeline_node:main',
             'm_bench_node = autonom_auv.m_bench_node:main',
-            'fake_controller_node = autonom_auv.fake_controller_node:main',
             'up_down_node = autonom_auv.up_down_node:main',
-            'fake_dvl_node = autonom_auv.fake_dvl_node:main',
+            'dvl_movement_node = autonom_auv.dvl_movement_node:main',
         ],
     },
 )

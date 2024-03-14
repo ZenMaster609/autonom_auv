@@ -30,11 +30,6 @@ def generate_launch_description():
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '1', '--ros-args', '--log-level', 'WARN'], output='screen')
 
-    fake_controller_node = Node(
-        package = package_name,
-        executable= 'fake_controller_node',
-        output='screen'
-    )
 
     up_down_node = Node(
         package = package_name,
@@ -48,9 +43,9 @@ def generate_launch_description():
         output='screen'
     )
 
-    fake_dvl_node = Node(
+    dvl_movement_node = Node(
         package = package_name,
-        executable= 'fake_dvl_node',
+        executable= 'dvl_movement_node',
         output='screen'
     )
 
@@ -70,6 +65,6 @@ def generate_launch_description():
         spawn_entity,
         movement_node,
         up_down_node,
-        fake_dvl_node,
+        dvl_movement_node,
         m_bench_node
     ])
