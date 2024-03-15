@@ -14,9 +14,9 @@ class PidController:
             self.Pre_D = Pre_D
     
      @staticmethod
-     def calculate_parameters(Center_X,set_point):
-         Offset_x = set_point-Center_X     
-         return Offset_x 
+     def calculate_parameters(measured_value,set_point):
+         Offset = set_point-measured_value  
+         return Offset
     
     
      def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0):
