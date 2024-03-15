@@ -18,7 +18,7 @@ class PidController:
          Offset = set_point-measured_value  
          return Offset
     
-    
+
      def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0):
           time_now = time.time()
           P = P/scale_devide
@@ -62,7 +62,7 @@ class transfer_funtion_class:
         self.pre_time = time.time()
         
 
-    def impliment_transfer_function(self,input): 
+    def implement_transfer_function(self,input): 
         time_now = time.time()
         t_s = time_now-self.pre_time
         ss = ctl.c2d(self.ss,t_s,"foh")

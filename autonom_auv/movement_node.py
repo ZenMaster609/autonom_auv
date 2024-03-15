@@ -27,9 +27,9 @@ class MovementNode(Node):
 
     def publish_movement(self):
         cmd_vel = Twist()
-        self.yaw = self.yaw_tf.impliment_transfer_function(self.yaw)
-        self.x = self.x_tf.impliment_transfer_function(self.x)
-        self.y = self.y_tf.impliment_transfer_function(self.y)
+        self.yaw = self.yaw_tf.implement_transfer_function(self.yaw)
+        self.x = self.x_tf.implement_transfer_function(self.x)
+        self.y = self.y_tf.implement_transfer_function(self.y)
         cmd_vel.linear.x = self.x
         cmd_vel.linear.y = self.y
         cmd_vel.linear.z = self.z
