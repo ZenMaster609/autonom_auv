@@ -74,11 +74,11 @@ class PipelineImageNode(Node):
             # print(f"time4: {self.time_start-time.time()}")
             if not done:
                 if self.mode ==1:
-                    angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,1000)
-                    linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,10000)
+                    angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,0.5,1000)
+                    linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,0.5,10000)
                     self.send_movement(angle_vel,linear_y_vel)            
                 else:
-                    angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,10000)
+                    angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)
                     self.send_movement(angle_vel)
                 self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
                 self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )

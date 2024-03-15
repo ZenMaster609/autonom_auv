@@ -66,9 +66,9 @@ def generate_launch_description():
         output='screen'
     )
     
-    fake_dvl_node = Node(
+    dvl_movement_node = Node(
         package = package_name,
-        executable= 'fake_dvl_node',
+        executable= 'dvl_movement_node',
         output='screen'
     )
 
@@ -80,5 +80,5 @@ def generate_launch_description():
         spawn_entity,
         m_pipeline_node,
         movement_node,
-        fake_dvl_node
+        dvl_movement_node
     ])

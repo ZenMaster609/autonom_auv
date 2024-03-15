@@ -19,24 +19,30 @@ class PidController:
          return Offset_x 
     
     
-     def PID_controller(self,Offset,P=0,I=0,D=0,scale_devide=1, margin=0):
+     def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0):
           time_now = time.time()
           P = P/scale_devide
           I = I/scale_devide
           D = D/scale_devide
           margin = margin/scale_devide
+          
           if self.Pre_time is None:
-               Output = P*Offset
+               Output = P*e
                u_I = 0
                u_D = 0
+               e_f=e 
           else:
-               u_P = P*Offset 
-               u_I=self.Pre_I+I*Offset*(time_now-self.Pre_time)
-               u_D = D*(Offset-self.Pre_offset)
+               T_s = time_now-self.Pre_time
+               u_P = P*e 
+               u_I=self.Pre_I+I*e*T_s/2
+               e_f = (1/(1+(T_s/T_f)))*self.Pre_e_f +((T_s/T_f)/(1+(T_s/T_f)))*e 
+               u_D = D*(e-self.Pre_offset)
                Output = u_P+u_I+u_D
 
-          self.Pre_offset = Offset
+
+          self.Pre_offset = e
           self.Pre_time = time_now
+          self.Pre_e_f = e_f
           self.Pre_I = u_I
           self.Pre_D = u_D
 

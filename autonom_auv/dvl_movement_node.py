@@ -33,14 +33,8 @@ class DvlMovementNode(Node):
         self.top_speed = 3.0
         self.pid = [80, 0.05, 0]
 
-    def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0, axis = 6, magnitude = 0.0):
+    def send_movement(self, axis = 6, magnitude = 0.0):
         msg = Twist()
-        msg.linear.x = x
-        msg.linear.y = y
-        msg.linear.z = z
-        msg.angular.x = roll
-        msg.angular.y = pitch
-        msg.angular.z = yaw
         if axis == 0:msg.linear.x = magnitude
         elif axis == 1:msg.linear.y = magnitude
         elif axis == 2:msg.linear.z = magnitude
