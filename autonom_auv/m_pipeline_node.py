@@ -70,7 +70,7 @@ class PipelineImageNode(Node):
             angle_deg,center_x, done = self.handler.find_pipeline()
             #print(f"time3: {self.time_start-time.time()}")
             set_point = (self.handler.dims[0])/2
-            offsett_x = PidController.calculate_parameters((center_x),self.handler.dims[1]/2)
+            offsett_x = PidController.calculate_offset((center_x),self.handler.dims[1]/2)
             # print(f"time4: {self.time_start-time.time()}")
             if not done:
                 if self.mode ==1:

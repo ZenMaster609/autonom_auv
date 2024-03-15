@@ -14,7 +14,7 @@ class PidController:
             self.Pre_D = Pre_D
     
      @staticmethod
-     def calculate_parameters(measured_value,set_point):
+     def calculate_offset(measured_value,set_point):
          Offset = set_point-measured_value  
          return Offset
     
