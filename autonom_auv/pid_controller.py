@@ -5,6 +5,7 @@ import numpy as np
 from collections import deque
 import asyncio
 import math
+
 class PidController: 
      def __init__(self,Pre_offset=None,Pre_time=None,Pre_I=None,Pre_D=None):
             self.Pre_offset = Pre_offset
@@ -29,9 +30,10 @@ class PidController:
                u_I = 0
                u_D = 0
           else:
+               u_P = P*Offset 
                u_I=self.Pre_I+I*Offset*(time_now-self.Pre_time)
                u_D = D*(Offset-self.Pre_offset)
-               Output = P*Offset+u_I+u_D
+               Output = u_P+u_I+u_D
 
           self.Pre_offset = Offset
           self.Pre_time = time_now
@@ -41,30 +43,6 @@ class PidController:
           if abs(Output) < margin:
                Output = 0.0
           return Output
-
-
-# class transfer_funtion_class:
-#     def __init__(self, numerator, denominator):
-#         ss = ctl.tf2ss(numerator,denominator)
-#         self.A = ss.A
-#         self.B = ss.B
-#         self.C = ss.C
-#         self.D  = ss.D
-#         self.x = np.zeros((self.A.shape[0],))
-#         self.pre_time = 0
-
-#     def impliment_transfer_function(self, input):
-#         time_now = time.time()
-#         t_s = time_now - self.pre_time
-
-#         # State update equation: x(k+1) = Ax(k) + Bu(k)
-#         self.x = np.dot(self.A, self.x) * t_s + np.dot(self.B, input) * t_s
-
-#         # Output equation: y(k) = Cx(k) + Du(k)
-#         output = np.dot(self.C, self.x) + self.D * input
-
-#         self.pre_time = time_now
-#         return output[0][0]
 
 class transfer_funtion_class: 
     def __init__(self,numerator,denominator): 
