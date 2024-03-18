@@ -84,14 +84,16 @@ class DvlMovementNode(Node):
         if self.homing:
             x = self.check_goal_pose(0)
             y = self.check_goal_pose(1)
-            self.send_movement(x = x, y= y)
+            if x == 0 or y == 0:return
+            try:
+                self.send_movement(x = x, y= y)
+            except Exception as e:_=e
             return
-        self.home2()
         self.check_goal_pose(0) #sjekk x
         self.check_goal_pose(1) #sjekk y
         self.reset_pi()
         self.check_goal_pose(5) #sjekk yaw
-        
+        self.home2()
             
 
     def xytrig(self):
