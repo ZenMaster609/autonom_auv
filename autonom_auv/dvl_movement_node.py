@@ -31,14 +31,15 @@ class DvlMovementNode(Node):
         self.speed_scale = 1
         self.zero_yaw = False
         self.homing = False
-        self.top_speed = 3.0
+        self.top_speed = 2.0
         self.pid = [80, 0.05, 0]
 
 
-    def send_movement(self,x = 0.0, y = 0.0, axis = 6, magnitude = 0.0):
+    def send_movement(self,x = 0.0, y = 0.0, yaw =0.0, axis = 6, magnitude = 0.0):
         msg = Twist()
         msg.linear.x = x
         msg.linear.y = y
+        msg.angular.z = yaw
         if axis == 0:msg.linear.x = magnitude
         elif axis == 1:msg.linear.y = magnitude
         elif axis == 2:msg.linear.z = magnitude
@@ -61,17 +62,10 @@ class DvlMovementNode(Node):
         self.publisher2.publish(msg)
 
     def home1(self):
-        self.target_pos[5] = 0
-        self.zero_yaw = True
+        self.target_pos[5] = 0.0
+        self.target_pos[0] = 0.0
+        self.target_pos[1] = 0.0
         self.get_logger().info(f"HOMING")
-        
-    
-    def home2(self):
-        if self.zero_yaw and abs(self.pos[5]) < 0.005:
-            self.target_pos[0] = 0
-            self.target_pos[1] = 0
-            self.zero_yaw = False
-            self.homing = True
     
     def reset_pi(self):
         if self.target_pos[5] is not None:
@@ -80,21 +74,13 @@ class DvlMovementNode(Node):
                 self.target_pos[5] = self.target_pos[5] - 2*math.pi
                 
 
-    def timer_callback(self):
-        if self.homing:
-            x = self.check_goal_pose(0)
-            y = self.check_goal_pose(1)
-            if x == 0 or y == 0:return
-            try:
-                self.send_movement(x = x, y= y)
-            except Exception as e:_=e
-            return
-        self.check_goal_pose(0) #sjekk x
-        self.check_goal_pose(1) #sjekk y
-        self.reset_pi()
-        self.check_goal_pose(5) #sjekk yaw
-        self.home2()
-            
+    def timer_callback(self):   
+        if any(self.target_pos):
+            self.reset_pi()
+            x = self.check_goal_pose(0) #sjekk x
+            y = self.check_goal_pose(1) #sjekk y
+            yaw = self.check_goal_pose(5) #sjekk yaw
+            self.send_movement(x=x, y=y, yaw=yaw)
 
     def xytrig(self):
         yaw, x, y = self.pos[5], self.pos[0], self.pos[1]
@@ -118,7 +104,7 @@ class DvlMovementNode(Node):
         self.get_logger().info(f"new target = {self.target_pos[axis]}, pos = {pos_fixed}, distance = {distance}")
 
     def check_goal_pose(self, axis):
-        if self.target_pos[axis] is None:return
+        if self.target_pos[axis] is None:return 0.0
         if axis == 0:pos_fixed, _ = self.xytrig()
         elif axis == 1:_, pos_fixed = self.xytrig() 
         else:pos_fixed = self.pos[axis]
@@ -128,14 +114,14 @@ class DvlMovementNode(Node):
             self.target_pos[axis] = None
             self.get_logger().info(f"reached goal in axis {axis}")
             self.send_false()
-            self.homing = False
+            return 0.0
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
             vel = self.blind_pid[axis].PID_controller(offset, self.pid[0], self.pid[1], self.pid[2], scale_devide = 100)
             if vel > self.top_speed:vel = self.top_speed
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
-            if self.homing:return vel
-            self.send_movement(axis=axis, magnitude = vel)
+            return vel
+
 
 
 

@@ -28,7 +28,7 @@ class MBenchNode(Node):
         self.publisher2 = self.create_publisher(Float32, '/up_down', 10)
         self.publisher3 = self.create_publisher(Twist, '/target', 10)
         self.desired_distance = 30
-        self.mode = 0
+        self.mode = 5
         self.bridge = CvBridge()
         self.handler = ImageHandler()
         self.x_controller = PidController()
