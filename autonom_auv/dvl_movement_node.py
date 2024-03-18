@@ -73,7 +73,6 @@ class DvlMovementNode(Node):
                 self.get_logger().info("RESET PI")
                 self.target_pos[5] = self.target_pos[5] - 2*math.pi
                 
-
     def timer_callback(self):   
         if any(self.target_pos):
             self.reset_pi()
@@ -81,6 +80,8 @@ class DvlMovementNode(Node):
             y = self.check_goal_pose(1) #sjekk y
             yaw = self.check_goal_pose(5) #sjekk yaw
             self.send_movement(x=x, y=y, yaw=yaw)
+ 
+            
 
     def xytrig(self):
         yaw, x, y = self.pos[5], self.pos[0], self.pos[1]
