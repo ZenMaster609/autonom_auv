@@ -30,11 +30,15 @@ class DvlMovementNode(Node):
         self.target_pos = [None,None,None,None,None,None]
         self.speed_scale = 1
         self.zero_yaw = False
+        self.homing = False
         self.top_speed = 3.0
         self.pid = [80, 0.05, 0]
 
-    def send_movement(self, axis = 6, magnitude = 0.0):
+
+    def send_movement(self,x = 0.0, y = 0.0, axis = 6, magnitude = 0.0):
         msg = Twist()
+        msg.linear.x = x
+        msg.linear.y = y
         if axis == 0:msg.linear.x = magnitude
         elif axis == 1:msg.linear.y = magnitude
         elif axis == 2:msg.linear.z = magnitude
@@ -67,6 +71,7 @@ class DvlMovementNode(Node):
             self.target_pos[0] = 0
             self.target_pos[1] = 0
             self.zero_yaw = False
+            self.homing = True
     
     def reset_pi(self):
         if self.target_pos[5] is not None:
@@ -76,11 +81,18 @@ class DvlMovementNode(Node):
                 
 
     def timer_callback(self):
+        if self.homing:
+            x = self.check_goal_pose(0)
+            y = self.check_goal_pose(1)
+            self.send_movement(x = x, y= y)
+            return
+        self.home2()
         self.check_goal_pose(0) #sjekk x
         self.check_goal_pose(1) #sjekk y
         self.reset_pi()
         self.check_goal_pose(5) #sjekk yaw
-        self.home2()
+        
+            
 
     def xytrig(self):
         yaw, x, y = self.pos[5], self.pos[0], self.pos[1]
@@ -114,17 +126,14 @@ class DvlMovementNode(Node):
             self.target_pos[axis] = None
             self.get_logger().info(f"reached goal in axis {axis}")
             self.send_false()
+            self.homing = False
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = self.blind_pid[axis].PID_controller(offset, self.pid[0], self.pid[1], self.pid[2], 100, 0.0)
+            vel = self.blind_pid[axis].PID_controller(offset, self.pid[0], self.pid[1], self.pid[2], scale_devide = 100)
             if vel > self.top_speed:vel = self.top_speed
-            self.send_movement(axis=axis, magnitude = vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
-
-
-
-
-
+            if self.homing:return vel
+            self.send_movement(axis=axis, magnitude = vel)
 
 
 

@@ -133,7 +133,7 @@ class MBenchNode(Node):
                     self.move_pos(5,90) # 90 deg
                     if not self.front:self.mode += 3 #Check if were behind the bench to skip modes. 
                 elif self.mode == 8:
-                    self.move_pos(1,-2.7)  #sideways slide to get behind the bench
+                    self.move_pos(1,-2.8)  #sideways slide to get behind the bench
                 elif self.mode == 9:
                     self.move_pos(5,90) #180 deg
                     self.front = False #Now we are behind the bench

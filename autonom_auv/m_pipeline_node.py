@@ -44,7 +44,7 @@ class PipelineImageNode(Node):
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         movement = Twist()
-        movement.linear.x = 1.5
+        movement.linear.x = 0.4
         movement.angular.z = ang_vel
         movement.linear.y = linear_y_vel
         self.testmeg = movement.angular.z

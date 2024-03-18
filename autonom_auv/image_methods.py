@@ -233,9 +233,9 @@ class ImageMethods:
     def angle_cooldown(angle_deg,Cooldown):
         if Cooldown == 0:
             if angle_deg==-90:
-                Cooldown = -10
+                Cooldown = -40
             elif angle_deg == 90:
-                Cooldown = 10
+                Cooldown = 40
 
         if angle_deg==-90 or angle_deg ==90:
             if Cooldown > 0:
