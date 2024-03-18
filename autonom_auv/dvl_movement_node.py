@@ -84,7 +84,6 @@ class DvlMovementNode(Node):
         if self.homing:
             x = self.check_goal_pose(0)
             y = self.check_goal_pose(1)
-            if x == 0 or y == 0:return
             try:
                 self.send_movement(x = x, y= y)
             except Exception as e:_=e
