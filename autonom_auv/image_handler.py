@@ -64,13 +64,15 @@ class ImageHandler:
         hsv_range = self.hsv_range_bib["pipeline_sim"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         self.aruco_handler(image_edit)
-        cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
-        box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*70000, True)
-        highest_box = ImageMethods.find_highest_box(box_list)
-        if highest_box is None:done = True
-        angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
-        angle_deg, self.cooldown = ImageMethods.angle_cooldown(angle_deg,self.cooldown)
-        center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
+        try:
+            cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
+            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*70000, True)
+            highest_box = ImageMethods.find_highest_box(box_list)
+            if highest_box is None:done = True
+            angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
+            angle_deg, self.cooldown = ImageMethods.angle_cooldown(angle_deg,self.cooldown)
+            center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
+        except Exception as e:_ = e
         cv2.putText(image_edit, f"{int(angle_deg)}",[800,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
         ImageMethods.showImage(image_edit)
         return angle_deg,center_x, done

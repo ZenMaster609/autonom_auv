@@ -44,7 +44,7 @@ class PipelineImageNode(Node):
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
         movement = Twist()
-        movement.linear.x = 0.4
+        movement.linear.x = 1.1
         movement.angular.z = ang_vel
         movement.linear.y = linear_y_vel
         self.testmeg = movement.angular.z
@@ -62,32 +62,38 @@ class PipelineImageNode(Node):
         self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8") 
 
     def timer_callback1(self):
-        if self.handler.feed_image is not None and self.state == 0:
+        if self.handler.feed_image is not None:
             #print(f"t_s: {time.time()-self.time_start}")
             self.time_start = time.time()
             #print(f"time1: {self.time_start-time.time()}")
             #print(f"time2: {self.time_start-time.time()}")
             angle_deg,center_x, done = self.handler.find_pipeline()
+            if self.state == 1:return
+            if done:
+                self.state = 1
+                print("done")
+                self.move_pos(0,0.0) #if distance = 0.0, home
+                return
             #print(f"time3: {self.time_start-time.time()}")
             set_point = (self.handler.dims[0])/2
             offsett_x = PidController.calculate_offset((center_x),self.handler.dims[1]/2)
             # print(f"time4: {self.time_start-time.time()}")
-            if not done:
-                if self.mode ==1:
-                    angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,0.5,1000)
-                    linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,0.5,10000)
-                    self.send_movement(angle_vel,linear_y_vel)            
-                else:
-                    angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)
-                    self.send_movement(angle_vel)
-                self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
-                self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )
-                self.colum1 = ["P","I","D","Acceleration","min area box"]
-                self.colum2 = [2,0,0,0.4654,70000]
+            #if not done:
+            if self.mode ==1:
+                angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,0.5,1000)
+                linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,0.5,10000)
+                self.send_movement(angle_vel,linear_y_vel)            
             else:
-                self.state = 1
-                print("done")
-                self.move_pos(0,0.0) #if distance = 0.0, home
+                angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)
+                self.send_movement(angle_vel)
+            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
+            self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )
+            self.colum1 = ["P","I","D","Acceleration","min area box"]
+            self.colum2 = [2,0,0,0.4654,70000]
+            # else:
+            #     self.state = 1
+            #     print("done")
+            #     self.move_pos(0,0.0) #if distance = 0.0, home
                 
             #print(f"time5: {self.time_start-time.time()}")
             #self.handler.show_image(False)

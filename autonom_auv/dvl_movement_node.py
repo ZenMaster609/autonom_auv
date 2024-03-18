@@ -29,6 +29,7 @@ class DvlMovementNode(Node):
         self.pos = [None,None,None,None,None,None]
         self.target_pos = [None,None,None,None,None,None]
         self.speed_scale = 1
+        self.treshold = 0.005
         self.zero_yaw = False
         self.homing = False
         self.top_speed = 2.0
@@ -74,22 +75,17 @@ class DvlMovementNode(Node):
                 self.target_pos[5] = self.target_pos[5] - 2*math.pi
                 
     def timer_callback(self):   
-        if any(self.target_pos):
-            self.reset_pi()
-            x = self.check_goal_pose(0) #sjekk x
-            y = self.check_goal_pose(1) #sjekk y
-            yaw = self.check_goal_pose(5) #sjekk yaw
-            self.send_movement(x=x, y=y, yaw=yaw)
+        self.reset_pi()
+        x = self.check_goal_pose(0) #sjekk x
+        y = self.check_goal_pose(1) #sjekk y
+        yaw = self.check_goal_pose(5) #sjekk yaw
+        self.send_movement(x=x, y=y, yaw=yaw)
  
-            
-
     def xytrig(self):
         yaw, x, y = self.pos[5], self.pos[0], self.pos[1]
         local_x = x * math.cos(yaw) + y * math.sin(yaw)
         local_y = -x * math.sin(yaw) + y * math.cos(yaw)
         return local_x, local_y
-
-    
 
     def move_pos_callback(self, msg):
         axis = int(msg.linear.x); distance = msg.linear.y
@@ -110,7 +106,7 @@ class DvlMovementNode(Node):
         elif axis == 1:_, pos_fixed = self.xytrig() 
         else:pos_fixed = self.pos[axis]
         
-        if abs(self.target_pos[axis] - pos_fixed) < 0.005: # Check if we are close to the target
+        if abs(self.target_pos[axis] - pos_fixed) < self.treshold: # Check if we are close to the target
             self.send_movement(axis=axis, magnitude =0.0)
             self.target_pos[axis] = None
             self.get_logger().info(f"reached goal in axis {axis}")
