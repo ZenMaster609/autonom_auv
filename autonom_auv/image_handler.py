@@ -58,7 +58,6 @@ class ImageHandler:
         
 
     def find_pipeline(self):
-        done = False
         image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         self.dims = image_edit.shape
         hsv_range = self.hsv_range_bib["pipeline_sim"]
@@ -69,6 +68,7 @@ class ImageHandler:
             box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*70000, True)
             highest_box = ImageMethods.find_highest_box(box_list)
             if highest_box is None:done = True
+            else:done=False
             angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
             angle_deg, self.cooldown = ImageMethods.angle_cooldown(angle_deg,self.cooldown)
             center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
