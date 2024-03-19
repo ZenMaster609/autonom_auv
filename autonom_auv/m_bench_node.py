@@ -43,6 +43,7 @@ class MBenchNode(Node):
         self.dvl_zeroed = False
 
     def zero_dvl(self):
+        #testing69
         self.dvl_zeroed = True
         self.get_logger().info("ZERO DVL")
 
