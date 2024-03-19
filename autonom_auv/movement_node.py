@@ -56,30 +56,6 @@ class MovementNode(Node):
         
 
 
-
-
-
-
-
-class compute_speed:
-    def __init__(self):
-        self.pre_speed = 0
-        self.pre_time = time.time()
-
-    def real_speed(self,speed_in,acceleration):
-        sign = np.sign(speed_in)
-        time_now = time.time()
-        t_s = time_now - self.pre_time
-        speed_out = self.pre_speed+(acceleration*t_s*sign)
-        if sign >=0:    
-            if speed_out > speed_in: speed_out = speed_in
-        elif sign < 0:
-            if speed_out < speed_in: speed_out = speed_in
-        self.pre_time = time_now
-        self.pre_speed = speed_out
-        return speed_out
-
-
 def main(args=None):
     rclpy.init(args=args)
     movement = MovementNode()
