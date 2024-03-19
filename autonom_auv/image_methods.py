@@ -277,11 +277,8 @@ class ImageMethods:
         return filtered_list
     
 
-
-        
-class Quaters:
-     @staticmethod
-     def quaternion_to_euler(x, y, z, w):
+    @staticmethod
+    def quaternion_to_euler(x, y, z, w):
           """
           Convert a quaternion into euler angles (roll, pitch, yaw)
           roll is rotation around x in radians (counterclockwise)

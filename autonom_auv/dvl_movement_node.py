@@ -10,7 +10,7 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import time 
 from .image_handler import ImageHandler, logging_data
-from .image_methods import ImageMethods, Quaters
+from .image_methods import ImageMethods
 from .dynamic_display import DynamicDisplay
 from .controller import PidController
 import signal
@@ -54,7 +54,7 @@ class DvlMovementNode(Node):
         self.pos[1] = msg.pose.pose.position.y
         self.pos[2] = msg.pose.pose.position.z
         quaternion = msg.pose.pose.orientation
-        self.pos[3], self.pos[4], self.pos[5] = Quaters.quaternion_to_euler(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
+        self.pos[3], self.pos[4], self.pos[5] = ImageMethods.quaternion_to_euler(quaternion.x, quaternion.y, quaternion.z, quaternion.w)
         if self.pos[5] < 0:self.pos[5] = 2*math.pi - abs(self.pos[5])  
 
     def send_false(self):
