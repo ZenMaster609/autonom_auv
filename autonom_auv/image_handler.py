@@ -12,6 +12,7 @@ from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 import cv2.aruco as aruco
 
+
 class ImageHandler:
     def __init__(self):
         self.hsv_range_bib = {
