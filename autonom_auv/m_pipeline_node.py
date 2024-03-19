@@ -5,7 +5,7 @@ from cv_bridge import CvBridge
 import cv2
 from ament_index_python.packages import get_package_share_directory
 from .image_methods import ImageMethods
-from .pid_controller import PidController
+from .controller import PidController
 from .image_handler import ImageHandler
 from .image_handler import logging_data
 import signal

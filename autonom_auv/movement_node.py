@@ -4,8 +4,8 @@ from geometry_msgs.msg import Twist
 from std_msgs.msg import Float32
 import time 
 import numpy as np
-from .pid_controller import PidController
-from .pid_controller import transfer_funtion_class
+from .controller import PidController
+from .controller import transfer_funtion_class
 from nav_msgs.msg import Odometry
 
 class MovementNode(Node):

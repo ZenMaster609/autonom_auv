@@ -12,7 +12,7 @@ import time
 from .image_handler import ImageHandler, logging_data
 from .image_methods import ImageMethods
 from .dynamic_display import DynamicDisplay
-from .pid_controller import PidController, Quaters
+from .controller import PidController, Quaters
 import signal
 from example_interfaces.srv import AddTwoInts
 import math
