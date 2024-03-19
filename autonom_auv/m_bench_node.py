@@ -43,9 +43,8 @@ class MBenchNode(Node):
         self.dvl_zeroed = False
 
     def zero_dvl(self):
-        if not self.dvl_zeroed:
-            self.dvl_zeroed = True
-            self.get_logger().info("ZERO DVL")
+        self.dvl_zeroed = True
+        self.get_logger().info("ZERO DVL")
 
     def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0):
         msg = Twist()
