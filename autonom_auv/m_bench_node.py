@@ -10,9 +10,9 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import time 
 from .image_handler import ImageHandler, logging_data
-from .image_methods import ImageMethods
+from .image_methods import ImageMethods,Quaters
 from .dynamic_display import DynamicDisplay
-from .controller import PidController, Quaters
+from .controller import PidController
 import signal
 from example_interfaces.srv import AddTwoInts
 import math
