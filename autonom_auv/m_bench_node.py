@@ -10,9 +10,9 @@ from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import time 
 from .image_handler import ImageHandler, logging_data
-from .image_methods import ImageMethods,Quaters
+from .image_methods import ImageMethods
 from .dynamic_display import DynamicDisplay
-from .controller import PidController
+from .controller import PidController, Quaters
 import signal
 from example_interfaces.srv import AddTwoInts
 import math
@@ -43,7 +43,6 @@ class MBenchNode(Node):
         self.dvl_zeroed = False
 
     def zero_dvl(self):
-        #testing69
         self.dvl_zeroed = True
         self.get_logger().info("ZERO DVL")
 
