@@ -64,7 +64,7 @@ class PipelineImageNode(Node):
     def timer_callback1(self):
         if self.handler.feed_image is not None:
             self.time_start = time.time()
-            angle_deg,center_x, done = self.handler.find_pipeline()
+            angle_deg,center_x, done = self.handler.find_pipeline(75000)
             if self.state == 1:return
             if done:
                 self.get_logger().info(f"Aruco List:{self.handler.filter_arucos()}")

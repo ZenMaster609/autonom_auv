@@ -19,6 +19,7 @@ class ImageHandler:
             "pipeline_sim" : [[30,114,114],[30,255,255]],
             "visual_short_distance" : [[0, 0, 30],[86, 0, 120]],
             "visual_long_distance" : [[0, 0, 0],[40, 200, 170]],
+            "pink_pipeline" : [[150, 45, 120],[179, 196, 255]]
         }
         self.feed_image = None
         self.feed_image2 = None
@@ -57,15 +58,15 @@ class ImageHandler:
         return size, positions, angle
         
 
-    def find_pipeline(self):
+    def find_pipeline(self,min_box_sice):
         image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         self.dims = image_edit.shape
-        hsv_range = self.hsv_range_bib["pipeline_sim"]
+        hsv_range = self.hsv_range_bib["pink_pipeline"]
         hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         self.aruco_handler(image_edit)
         try:
             cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
-            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*75000, True)
+            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*min_box_sice, True)
             highest_box = ImageMethods.find_highest_box(box_list)
             if highest_box is None:done = True
             else:done=False
@@ -75,7 +76,7 @@ class ImageHandler:
         except Exception as e:_ = e
         cv2.putText(image_edit, f"{int(angle_deg)}",[800,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
         ImageMethods.showImage(image_edit)
-        return angle_deg,center_x, done
+        return angle_deg,center_x, done,image_edit
   
 
 

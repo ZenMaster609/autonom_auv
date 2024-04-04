@@ -14,19 +14,21 @@ class USB_Camera(Node):
          self.timer = self.create_timer(0.1, self.timer_callback)
          self.cap = cv2.VideoCapture(0)
          self.cv_bridge = CvBridge()
-         self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
-         self.chessboard_size = (7, 9)  # 7 corners in width, 6 in height
-        # Prepare object points based on the chessboard size
-         self.objp = np.zeros((self.chessboard_size[0] * self.chessboard_size[1], 3), np.float32)
-         self.objp[:, :2] = np.mgrid[0:self.chessboard_size[0], 0:self.chessboard_size[1]].T.reshape(-1, 2)
-        # Arrays to store object points and image points from all the images.
-         self.objpoints = [] # 3d point in real world space
-         self.imgpoints = [] # 2d points in image plane.
-
+        #  self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
+        #  self.chessboard_size = (7, 9)  # 7 corners in width, 6 in height
+        # # Prepare object points based on the chessboard size
+        #  self.objp = np.zeros((self.chessboard_size[0] * self.chessboard_size[1], 3), np.float32)
+        #  self.objp[:, :2] = np.mgrid[0:self.chessboard_size[0], 0:self.chessboard_size[1]].T.reshape(-1, 2)
+        # # Arrays to store object points and image points from all the images.
+        #  self.objpoints = [] # 3d point in real world space
+        #  self.imgpoints = [] # 2d points in image plane.
+         self.video_writer = None
 
     def custom_cleanup(self):
-        self.get_logger().info(f"{self.mtx}")
-        self.get_logger().info(f"{self.dist}")
+            if self.video_writer:
+                self.video_writer.release()
+        # self.get_logger().info(f"{self.mtx}")
+        # self.get_logger().info(f"{self.dist}")
 
     def timer_callback(self):
         ret, frame = self.cap.read()
@@ -68,7 +70,16 @@ class USB_Camera(Node):
             
             imgshow = np.hstack((img_resized, dst_resized))
 
-            self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(imgshow,"bgr8"))
+            self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(dst_resized,"bgr8"))
+
+                        # Write frame to video file
+            if self.video_writer is None:
+                # Define the codec and create VideoWriter object
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                self.video_writer = cv2.VideoWriter('output.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
+
+            # Write the frame
+            self.video_writer.write(dst_resized)
 
 
 def main(args=None):

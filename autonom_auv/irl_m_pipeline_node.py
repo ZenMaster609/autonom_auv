@@ -30,6 +30,7 @@ class PipelineImageNode(Node):
         self.time_start = time.time()
         self.cv_image = None
         self.state = 0
+        self.video_writer = None
         
 
     def move_pos(self, axis, distance):
@@ -39,7 +40,8 @@ class PipelineImageNode(Node):
         self.publisher.publish(msg)
 
     def custom_cleanup(self):
-        self.logger.plot_data_table(self.colum1,self.colum2,self.handler.filter_arucos(),self.plot_names)
+        if self.video_writer:
+            self.video_writer.release()
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -64,7 +66,7 @@ class PipelineImageNode(Node):
     def timer_callback1(self):
         if self.handler.feed_image is not None:
             self.time_start = time.time()
-            angle_deg,center_x, done = self.handler.find_pipeline()
+            angle_deg,center_x, done,image_edit = self.handler.find_pipeline(15000)
             if self.state == 1:return
             if done:
                 self.get_logger().info(f"Aruco List:{self.handler.filter_arucos()}")
@@ -81,11 +83,14 @@ class PipelineImageNode(Node):
                 angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)
                 self.send_movement(angle_vel)
 
-            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
-            self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )
-            self.colum1 = ["P","I","D","Acceleration","min area box"]
-            self.colum2 = [17,0.1,0,0.1,.4654,75000]
-            print(f"time5: {time.time()-self.time_start}")
+            if self.video_writer is None:
+                # Define the codec and create VideoWriter object
+                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                self.video_writer = cv2.VideoWriter('rosaror_analyse.mp4', fourcc, 40.0, (image_edit.shape[1], image_edit.shape[0]))
+
+            # Write the frame
+            ImageMethods.showImage(image_edit)
+            self.video_writer.write(image_edit)
         
 def main(args=None):
     rclpy.init(args=args)
