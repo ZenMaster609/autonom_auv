@@ -72,6 +72,11 @@ def generate_launch_description():
         output='screen'
     )
 
+    usb_camera_node = Node(
+        package = package_name,
+        executable= 'USB_Camera_node',
+        output='screen'
+    )
     
  
     return LaunchDescription([
@@ -81,4 +86,5 @@ def generate_launch_description():
         m_pipeline_node,
         movement_node,
         dvl_movement_node,
+        usb_camera_node,
     ])

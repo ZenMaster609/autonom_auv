@@ -30,9 +30,11 @@ setup(
         'console_scripts': [
             'movement_node = autonom_auv.movement_node:main',
             'm_pipeline_node = autonom_auv.m_pipeline_node:main',
+            'irl_m_pipeline_node = autonom_auv.irl_m_pipeline_node:main',
             'm_bench_node = autonom_auv.m_bench_node:main',
             'up_down_node = autonom_auv.up_down_node:main',
             'dvl_movement_node = autonom_auv.dvl_movement_node:main',
+            'USB_Camera_node = autonom_auv.USB_Camera_node:main',
         ],
     },
 )

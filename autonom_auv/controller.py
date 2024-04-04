@@ -34,9 +34,9 @@ class PidController:
           else:
                T_s = time_now-self.Pre_time
                u_P = P*e 
-               u_I=self.Pre_I+I*e*T_s/2
+               u_I=self.Pre_I+I*T_s*(e+self.Pre_offset)/2
                e_f = (1/(1+(T_s/T_f)))*self.Pre_e_f +((T_s/T_f)/(1+(T_s/T_f)))*e 
-               u_D = D*(e-self.Pre_offset)
+               u_D = D*(e-self.Pre_offset)/T_s
                Output = u_P+u_I+u_D
 
 
@@ -46,8 +46,8 @@ class PidController:
           self.Pre_I = u_I
           self.Pre_D = u_D
 
-          if abs(Output) < margin:
-               Output = 0.0
+          #if abs(Output) < margin:
+          #     Output = 0.0
           return Output
 
 class transfer_funtion_class: 

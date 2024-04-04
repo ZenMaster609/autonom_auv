@@ -25,7 +25,6 @@ class ImageHandler:
         self.show_hsv = None
         self.cooldown = 0
         self.Id_list= []   
-        self.filtered_list = []
         self.aruco_printed = 0 
         self.bench_box_image = None
         self.scale_factor = 0.5
@@ -66,7 +65,7 @@ class ImageHandler:
         self.aruco_handler(image_edit)
         try:
             cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
-            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*70000, True)
+            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*75000, True)
             highest_box = ImageMethods.find_highest_box(box_list)
             if highest_box is None:done = True
             else:done=False
@@ -87,8 +86,9 @@ class ImageHandler:
             self.Id_list = ImageMethods.read_AruCo(image2,self.Id_list)
 
     def filter_arucos(self):
-        self.filtered_list = ImageMethods.filtered_ids_list(self.Id_list)
-    
+        filtered_list = []
+        filtered_list = ImageMethods.filtered_ids_list(self.Id_list)
+        return filtered_list 
 
     
 

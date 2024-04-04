@@ -47,6 +47,7 @@ class PipelineImageNode(Node):
         self.publisher.publish(msg)
 
     def custom_cleanup(self):
+        self.get_logger().info(f'Aruco {self.handler.filter_arucos()}')
         self.logger.plot_data_table(self.colum1,self.colum2,self.handler.filter_arucos(),self.plot_names)
         self.get_logger().info(f'I ran')
 
