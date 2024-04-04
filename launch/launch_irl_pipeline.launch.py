@@ -53,9 +53,9 @@ def generate_launch_description():
       #  output='screen'
     #)
 
-    m_pipeline_node = Node(
+    irl_m_pipeline_node = Node(
         package = package_name,
-        executable= 'm_pipeline_node',
+        executable= 'irl_m_pipeline_node',
         output='screen'
     )
     
@@ -80,11 +80,11 @@ def generate_launch_description():
     
  
     return LaunchDescription([
-        rsp,
-        gazebo,
-        spawn_entity,
-        m_pipeline_node,
-        movement_node,
-        dvl_movement_node,
+        # rsp,
+        # gazebo,
+        # spawn_entity,
+        irl_m_pipeline_node,
+        # movement_node,
+        # dvl_movement_node,
         usb_camera_node,
     ])
