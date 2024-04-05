@@ -19,7 +19,7 @@ class ImageHandler:
             "pipeline_sim" : [[30,114,114],[30,255,255]],
             "visual_short_distance" : [[0, 0, 30],[86, 0, 120]],
             "visual_long_distance" : [[0, 0, 0],[40, 200, 170]],
-            "pink_pipeline" : [[150, 45, 120],[179, 196, 255]]
+            "pink_pipeline" : [[126, 45, 87],[179, 255, 255]]
         }
         self.feed_image = None
         self.feed_image2 = None
@@ -28,7 +28,7 @@ class ImageHandler:
         self.Id_list= []   
         self.aruco_printed = 0 
         self.bench_box_image = None
-        self.scale_factor = 0.5
+        self.scale_factor = 1
         
     def show_image(self, double):
         if not double:

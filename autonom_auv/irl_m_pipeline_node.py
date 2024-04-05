@@ -83,13 +83,14 @@ class PipelineImageNode(Node):
                 angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)
                 self.send_movement(angle_vel)
 
+
+
             if self.video_writer is None:
                 # Define the codec and create VideoWriter object
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                self.video_writer = cv2.VideoWriter('rosaror_analyse.mp4', fourcc, 40.0, (image_edit.shape[1], image_edit.shape[0]))
+                self.video_writer = cv2.VideoWriter('rosaror_analyse.mp4', fourcc, 20.0, (image_edit.shape[1], image_edit.shape[0]))
 
             # Write the frame
-            ImageMethods.showImage(image_edit)
             self.video_writer.write(image_edit)
         
 def main(args=None):
