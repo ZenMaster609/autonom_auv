@@ -59,13 +59,29 @@ class USB_Camera(Node):
                     cv2.drawChessboardCorners(frame, (7,9), corners2, ret)
                     ret, self.mtx, self.dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray.shape[::-1], None, None)
 
-
+            #640x480
             mtx = np.array(((426.17685011,   0,         320.38487224),
              (0,          429.76884458, 225.27715136),
              (0,           0,           1       ),))
 
             dist = np.array(((-0.35653578,  0.11731714,  0.01052246,  0.00376304, -0.01392377),))
 
+            #1280x720
+            mtx = np.array(((611.082382,   0,         595.40312266),
+            (0,          618.51394322 ,343.08958946),
+             (0,           0,           1       ),))
+            
+            dist = np.array(((-0.39713469,  0.18946718,  0.00986973,  0.00293931, -0.04809439),))
+
+            #1920x1080
+            mtx = np.array(((942.58236131,   0,          998.455621),
+            (0,          940.40484639  ,483.5744114 ),
+             (0,           0,           1       ),))
+            
+            dist = np.array(((-0.39959891,  0.20989667,  0.00731195, -0.00624578, -0.07029635),))
+
+            
+            
             img = frame.copy()
             h, w = frame.shape[:2]
             newcameramtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w,h), 1, (w,h))
