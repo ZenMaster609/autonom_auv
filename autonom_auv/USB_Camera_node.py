@@ -18,6 +18,8 @@ class USB_Camera(Node):
          self.publisher = self.create_publisher(Image, 'usb_camera', 10)
          self.timer = self.create_timer(0.1, self.timer_callback)
          self.cap = cv2.VideoCapture(0)
+         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
          self.cv_bridge = CvBridge()
          self.calibrate = False
          if self.calibrate:
