@@ -78,10 +78,12 @@ class MBenchNode(Node):
         try:
             self.size, self.positions, self.angle = self.handler.find_bench(self.front, self.mode)
             self.angle_list.append(self.angle)
+            self.found_bench = True
         except Exception as e:_ = e
+            self.found_bench = False
         
     def camera_regulator(self, key:str, accuracy = 1.0):
-        if self.size is not None:
+        if self.found_bench == True:
             if key == 'slide_in':
                 y_offset = self.handler.dims[1]/2 - self.positions['center'][0] - 30
                 y_vel = self.y_controller.PID_controller(y_offset,20,0.0,0.0,0.5,5000)
