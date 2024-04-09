@@ -11,28 +11,28 @@ from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
 def generate_launch_description():
 
     package_name='autonom_auv' 
-    #Lag launchable av Robot state publisher
+    #Configure RSP
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','rsp.launch.py'
                 )]), launch_arguments={'use_sim_time': 'true', 'log_level': 'WARN'}.items()
     )
-    #skriv inn navn på verden
+    #Pick world
     world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'bench.world')
 
-    #Lag launchable av gazebo
+    #Configure Gazebo
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
                     launch_arguments={'world': world_file_path, 'log_level': 'WARN'}.items()
              )
 
-    #spawn ROVen
+    #spawn ROV
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '1', '--ros-args', '--log-level', 'WARN'], output='screen')
 
 
-    #Lag launchable av nodene som skal brukes, disse må også deklareres i setup.py
+    #Configure/include other nodes
     up_down_node = Node(
         package = package_name,
         executable= 'up_down_node',
@@ -57,7 +57,7 @@ def generate_launch_description():
         output='screen'
     )
     
-#Kjør disse nodene
+#Launch nodes
     return LaunchDescription([
         rsp,
         gazebo,
