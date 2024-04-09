@@ -16,7 +16,7 @@ class USB_Camera(Node):
     def __init__(self):
          super().__init__('usb_camera_node') 
          self.publisher = self.create_publisher(Image, 'usb_camera', 10)
-         self.timer = self.create_timer(0.1, self.timer_callback)
+         self.timer = self.create_timer(0.05, self.timer_callback)
          self.cap = cv2.VideoCapture(0)
          self.cv_bridge = CvBridge()
          self.calibrate = False
@@ -39,6 +39,7 @@ class USB_Camera(Node):
             if self.calibrate:
                 self.get_logger().info(f"{self.mtx}")
                 self.get_logger().info(f"{self.dist}")
+            self.get_logger().info(f'Camera clean up ran')
 
     def timer_callback(self):
         ret, frame = self.cap.read()
@@ -87,7 +88,7 @@ class USB_Camera(Node):
             if self.video_writer is None:
                 # Define the codec and create VideoWriter object
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                self.video_writer = cv2.VideoWriter('output.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
+                self.video_writer = cv2.VideoWriter('output2.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
 
             # Write the frame
             self.video_writer.write(dst_resized)
