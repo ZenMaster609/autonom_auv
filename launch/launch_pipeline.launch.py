@@ -11,29 +11,29 @@ from launch.actions import IncludeLaunchDescription, SetEnvironmentVariable
 def generate_launch_description():
 
     package_name='autonom_auv' 
-
+    #Configure RSP
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory(package_name),'launch','rsp.launch.py'
                 )]), launch_arguments={'use_sim_time': 'true'}.items()
     )
-    
+    #pick world
     world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'pipeline.world')
-
+    #configure Gazebo
     gazebo = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
                     get_package_share_directory('gazebo_ros'), 'launch', 'gazebo.launch.py')]),
                     launch_arguments={'world': world_file_path}.items()
              )
 
-    # Run the spawner node from the gazebo_ros package. The entity name doesn't really matter if you only have a single robot.
+    #spawn ROV
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
                         arguments=['-topic', 'robot_description',
                                    '-entity', 'my_bot','-x','0', '-z', '0.8'],
                         output='screen')
 
    
-
+    #configure/include other nodes
     fake_controller_node = Node(
         package = package_name,
         executable= 'fake_controller_node',
@@ -73,7 +73,7 @@ def generate_launch_description():
     )
 
     
- 
+     #launch nodes
     return LaunchDescription([
         rsp,
         gazebo,
