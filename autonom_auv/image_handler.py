@@ -88,13 +88,13 @@ class ImageHandler:
             if highest_box is None:done = True 
             else:done=False
             #find angle and y position of pipe relative to ROV
-            angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
-            angle_deg, self.cooldown = ImageMethods.angle_cooldown(angle_deg,self.cooldown)
+            angle,angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
+            angle, self.cooldown = ImageMethods.angle_cooldown(angle,self.cooldown)
             center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
         except Exception as e:_ = e #Display imagefeed no matter if pipe is found.
         cv2.putText(image_edit, f"{int(angle_deg)}",[800,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
         ImageMethods.showImage(image_edit)
-        return angle_deg,center_x, done #return relevant positional data.
+        return angle,center_x, done #return relevant positional data.
   
 
 

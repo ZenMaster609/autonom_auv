@@ -209,24 +209,25 @@ class ImageMethods:
                 else: direction=1
             angle=math.acos(Vector[0]/lenght_Vec)
             angle_deg=(angle*360/2/math.pi-offset)*direction
-            return angle_deg
+            angle = math.radians(angle_deg)
+            return angle, angle_deg
         else: return 0 
 
     @staticmethod
-    def angle_cooldown(angle_deg,Cooldown):
+    def angle_cooldown(angle,Cooldown):
         """makes sure angle calculating functions dont confuse themselves about 90 and -90 degrees"""
         if Cooldown == 0:
-            if angle_deg==-90:
+            if angle==-math.pi/2:
                 Cooldown = -40
-            elif angle_deg == 90:
+            elif angle == math.pi/2:
                 Cooldown = 40
 
-        if angle_deg==-90 or angle_deg ==90:
+        if angle==-math.pi/2 or angle ==math.pi/2:
             if Cooldown > 0:
-                angle_deg=abs(angle_deg)
+                angle=abs(angle)
                 Cooldown -= 1 
             if Cooldown < 0:
-                angle_deg=-abs(angle_deg)
+                angle=-abs(angle)
                 Cooldown += 1
         else:
             if Cooldown > 0:
@@ -235,7 +236,7 @@ class ImageMethods:
                 Cooldown += 1
             else:
                 Cooldown = 0
-        return angle_deg, Cooldown
+        return angle, Cooldown
 
     @staticmethod
     def read_AruCo(image,id_list):
@@ -280,6 +281,12 @@ class ImageMethods:
           t4 = +1.0 - 2.0 * (y * y + z * z)
           yaw_z = math.atan2(t3, t4)
           return roll_x, pitch_y, yaw_z
+    
+
+    @staticmethod
+    def pixles_to_meters(pixles, distance_from_object, dimensions):
+        meters = pixles * distance_from_object / dimensions
+        return meters 
     
 
 
