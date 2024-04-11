@@ -11,13 +11,17 @@ from nav_msgs.msg import Odometry
 class MovementNode(Node):
     def __init__(self):
         super().__init__('movement_node')
+        #Topic pub/subs
         self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.create_subscription(Twist,'/tf_movement', self.movement_callback,10)
+
+        #Object declarations 
         self.yaw_controller = PidController()
         self.yaw_tf =  transfer_funtion_class([3.74, 61.48, 2546], [1, 38.65, 519.6, 2533])  
         self.x_tf = transfer_funtion_class([3.606,40.12,1421],[1, 16.98, 273.3, 1411])
         self.y_tf = transfer_funtion_class([4.014, 83.39, 2173],[1, 31.09, 357.9, 2170])
+        
+        #Variable declarations
         self.x = 0.0
         self.y = 0.0
         self.z = 0.0
@@ -25,7 +29,9 @@ class MovementNode(Node):
         self.pitch = 0.0
         self.yaw = 0.0  
 
+
     def publish_movement(self):
+        """Publishes TF corrected movement"""
         cmd_vel = Twist()
         self.yaw = self.yaw_tf.implement_transfer_function(self.yaw)
         self.x = self.x_tf.implement_transfer_function(self.x)
@@ -38,14 +44,9 @@ class MovementNode(Node):
         cmd_vel.angular.z = self.yaw
         self.publisher.publish(cmd_vel)
 
-    def odom_callback(self, msg):
-        self.odom_x = msg.pose.pose.position.x
-        self.odom_y = msg.pose.pose.position.y
-        self.odom_z = msg.pose.pose.position.z
-        self.odom_roll = msg.pose.pose.orientation.x
-        self.odom_yaw = msg.pose.pose.orientation.z
 
     def movement_callback(self,msg):
+        """Reads external movement commands"""
         self.x = msg.linear.x
         self.y = msg.linear.y
         self.z = msg.linear.z

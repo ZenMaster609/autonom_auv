@@ -7,8 +7,9 @@ import os
 import time
 class ImageMethods: 
 
-    @staticmethod
+    @staticmethod    
     def scale_image(image, scale_factor = 0.5):
+        """Scales image"""
         new_width = int(image.shape[1] * scale_factor)
         new_height = int(image.shape[0] * scale_factor)
         resized_image = cv2.resize(image, (new_width, new_height))
@@ -16,16 +17,19 @@ class ImageMethods:
 
     @staticmethod
     def fix_hsv(image):
+        """Gives HSV image a third dimention so it can be merged with color pictures for dual display"""
         fixed_hsv = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
         return fixed_hsv
     
     @staticmethod
     def saveImage(image):
+        "saves image"
         photos_path = os.path.join(get_package_share_directory('autonom_auv'), 'photos', f"cam2_{time.time()}.jpg")
         cv2.imwrite(photos_path, image)
 
     @staticmethod
     def showImage(image,scale=1):
+        """Saves displayed image by pressing 's' """
         image = cv2.resize(image, (0, 0),fx=scale,fy=scale)
         cv2.imshow("window", image)
         key = cv2.waitKey(1)
@@ -34,12 +38,14 @@ class ImageMethods:
 
     @staticmethod
     def close_image(image, rate):
+        """Fills holes in image"""
         kernel = np.ones((rate, rate), np.uint8)  # Kernel size affects the amount of merging
         closed_image = cv2.morphologyEx(image, cv2.MORPH_CLOSE, kernel)
         return closed_image
 
     @staticmethod
     def stack_images(images,):
+        """Takes a list of images and stacks them"""
         images = [img for img in images if img is not None]
         rows = (len(images) + 1) // 2
         cols = min(2, len(images))
@@ -84,33 +90,10 @@ class ImageMethods:
                         cv2.drawContours(Original_image, [box], -1, (0, 0, 255), thickness=2)
         return box_list
 
-
-    @staticmethod
-    def make_stricter_boxes(hsv_image, Original_image, draw:bool):
-        contours, _ = cv2.findContours(hsv_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        best_rectangle = None
-        max_area = 0
-        for cnt in contours:
-            # Approximate the contour to a polygon
-            epsilon = 0.05 * cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, epsilon, True)
-            # Check for rectangular shape (4 sides) and aspect ratio
-            if len(approx) == 4:
-                x, y, w, h = cv2.boundingRect(approx)
-                aspect_ratio = float(w) / h
-                area = cv2.contourArea(approx)
-                # You can adjust the aspect ratio range according to the expected shape
-                if 2.0 < aspect_ratio < 4 and area > max_area:
-                    best_rectangle = approx
-                    max_area = area
-        if best_rectangle is not None and draw:
-            cv2.drawContours(Original_image, [best_rectangle], -1, (0, 255, 0), thickness=3)
-        return best_rectangle   
-    
-
-        
+ 
     @staticmethod
     def find_biggest_box(image, boxes:list, draw:bool):
+        """Finds biggest box in a list of boxes"""
         max_area = 0
         biggest_box = None
         for box in boxes:
@@ -191,7 +174,7 @@ class ImageMethods:
 
     @staticmethod
     def find_Center(image, box, draw:bool): 
-        "Draw a dot in the center of the box, return Center cordinates"  
+        "Draw a dot in the center of a box, return Center cordinates"  
         if box is not None:
             center=((box[0]+box[2])/2)
             Center_X=int(center[0])
@@ -204,7 +187,7 @@ class ImageMethods:
     @staticmethod
     def find_angle_box(box,offset=0, width= 960):
         if box is not None:
-            "Finding the angle of the object between the horizontal frame and the longest vector"
+            "Finds the angle of the object between the horizontal frame and the longest vector"
             Vec_1=box[0]-box[1]
             Vec_2=box[1]-box[2]
             lenght_Vec_1=math.sqrt(Vec_1[0]**2+Vec_1[1]**2)
@@ -231,6 +214,7 @@ class ImageMethods:
 
     @staticmethod
     def angle_cooldown(angle_deg,Cooldown):
+        """makes sure angle calculating functions dont confuse themselves about 90 and -90 degrees"""
         if Cooldown == 0:
             if angle_deg==-90:
                 Cooldown = -40

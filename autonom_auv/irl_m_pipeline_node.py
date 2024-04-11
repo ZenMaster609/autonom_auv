@@ -75,7 +75,7 @@ class PipelineImageNode(Node):
             
             if self.state == 1:return
             time_ran =time.time()-self.time_start
-            self.get_logger().info(f"{time_ran}")
+            #self.get_logger().info(f"{time_ran}")
             if done and time_ran>5:
                 self.get_logger().info(f"Aruco List:{self.handler.filter_arucos()}")
                 self.state = 1

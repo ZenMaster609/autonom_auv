@@ -15,11 +15,13 @@ class PidController:
     
      @staticmethod
      def calculate_offset(measured_value,set_point):
+         """Calcualates offset"""
          Offset = set_point-measured_value  
          return Offset
     
 
      def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0):
+          """Discrite PID controller"""
           time_now = time.time()
           P = P/scale_devide
           I = I/scale_devide
@@ -63,6 +65,7 @@ class transfer_funtion_class:
         
 
     def implement_transfer_function(self,input): 
+        "Implements transfer function"
         time_now = time.time()
         t_s = time_now-self.pre_time
         ss = ctl.c2d(self.ss,t_s,"foh")

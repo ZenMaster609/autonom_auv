@@ -11,8 +11,8 @@ from nav_msgs.msg import Odometry
 import time 
 from .image_handler import ImageHandler, logging_data
 from .image_methods import ImageMethods
-from .dynamic_display import DynamicDisplay
-from .controller import PidController, Quaters
+from .trackbar_hsv import DynamicDisplay
+from .controller import PidController
 import signal
 from example_interfaces.srv import AddTwoInts
 import math
@@ -20,6 +20,7 @@ import math
 class MBenchNode(Node):
     def __init__(self):
         super().__init__('mission_bench_node')
+        #Topic pub/sub + timer
         self.create_subscription(Image,'/camera2/image_raw',  self.cam2_callback,10)
         self.create_subscription(Image,'/camera/image_raw',  self.cam1_callback,10)
         self.create_subscription(Bool, '/move_bool', self.bool_callback, 10)
@@ -27,13 +28,16 @@ class MBenchNode(Node):
         self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
         self.publisher2 = self.create_publisher(Float32, '/up_down', 10)
         self.publisher3 = self.create_publisher(Twist, '/target', 10)
-        self.desired_distance = 30
-        self.mode = 5
+        #object declarations
         self.bridge = CvBridge()
         self.handler = ImageHandler()
         self.x_controller = PidController()
         self.y_controller = PidController()
         self.yaw_controller = PidController()
+        self.logger = logging_data()
+        #variable declarations
+        self.desired_distance = 30
+        self.mode = 5
         self.move_bool = False
         self.front = True
         self.size = None
@@ -41,12 +45,15 @@ class MBenchNode(Node):
         self.angle = None
         self.angle_list = []
         self.dvl_zeroed = False
+        self.found_bench = False
 
     def zero_dvl(self):
+        """Pretend zeroing DVL"""
         self.dvl_zeroed = True
         self.get_logger().info("ZERO DVL")
 
     def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0):
+        """Sends movements which are then processed by the movement node"""
         msg = Twist()
         msg.linear.x = x
         msg.linear.y = y
@@ -57,32 +64,40 @@ class MBenchNode(Node):
         self.publisher1.publish(msg)
 
     def publish_z(self, value):
+        """Teleports on the z axis"""
         msg = Float32()
         msg.data = value
         self.publisher2.publish(msg)
 
     def bool_callback(self, msg):
+        #Changes movebool if DVL movement node is finished moving
         self.move_bool = msg.data
         self.get_logger().info(f"BOOL CALLBACK: {msg.data}")
 
+    #Fetch image feeds
     def cam1_callback(self,data):
         self.handler.feed_image2 = self.bridge.imgmsg_to_cv2(data, "bgr8")
 
     def cam2_callback(self, data):
         self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        
-    def timer_callback(self):
+    
+    def timer_callback(self): #Runs the main sequence on a timer
         self.run_image_strategy()
 
     def cam_info_get(self):
+        """Retrieves positional data on the bench relative to the ROV"""
         try:
             self.size, self.positions, self.angle = self.handler.find_bench(self.front, self.mode)
             self.angle_list.append(self.angle)
             self.found_bench = True
-        except Exception as e:_ = e
+        except Exception as e:
             self.found_bench = False
-        
+        # gir = yaw, svai = y, jag = x
+
     def camera_regulator(self, key:str, accuracy = 1.0):
+        """Regulates postion relative to the bench using imageprocessing data. 
+        Different key arguements lead to different methods of regulation and different offsets.
+        Increases mode by 1"""
         if self.found_bench == True:
             if key == 'slide_in':
                 y_offset = self.handler.dims[1]/2 - self.positions['center'][0] - 30
@@ -112,6 +127,7 @@ class MBenchNode(Node):
                     self.mode += 1  
 
     def run_image_strategy(self):
+            """Contains and controls the sequence for the mission, mode variable indicates where in the sequence the ROV is"""
             if self.handler.feed_image is not None:
                 self.cam_info_get()
             if self.move_bool == False:
@@ -129,42 +145,31 @@ class MBenchNode(Node):
                 elif self.mode == 5:
                     self.camera_regulator('middle_right')
                 elif self.mode == 6:
-                    self.move_pos(1,-1.3)  #safety slide to get to the side of the bench.
+                    self.move_pos(1,-1.3)  #Slide further to the right after finding the right side of the bench
                 elif self.mode == 7:
-                    self.move_pos(5,90) # 90 deg
-                    if not self.front:self.mode += 3 #Check if were behind the bench to skip modes. 
+                    self.move_pos(5,90) # turn 90 deg 
+                    if not self.front:self.mode += 3 #Check if were behind the bench, if so skip to mode 10. 
                 elif self.mode == 8:
-                    self.move_pos(1,-2.8)  #sideways slide to get behind the bench
+                    self.move_pos(1,-2.8)  #Slide to the right to position behind the bench
                 elif self.mode == 9:
-                    self.move_pos(5,90) #180 deg
-                    self.front = False #Now we are behind the bench
+                    self.move_pos(5,90) #rotate 90 deg
+                    self.front = False #Now the ROV is behind the bench
                 elif self.mode ==10:
-                    self.move_pos(1, -2) #sideways slide to get closer to middle of behind the bench
+                    self.move_pos(1, -2) #sideways slide to get closer to middle of the side of the bench before trying to locate it via imageprocessing.
                     self.mode = 0
                 elif self.mode == 11:
-                    self.camera_regulator('slide_in')
+                    self.camera_regulator('slide_in') #Find an exact position for sliding in between the bench and teleport upwards
                 elif self.mode == 12:
-                    self.move_pos(5, 90)    
+                    self.move_pos(5, 90) # turn around 90 deg to face the bench top front.
                 elif self.mode ==13:
-                    self.move_pos(1,-3.5)
+                    self.move_pos(1,-3.5) #Slide along the top of the bench to find the last codes.
                 elif self.mode ==14:
-                    self.handler.filter_arucos() #filtrer koder
-                    self.get_logger().info(f"Aruco list: {self.handler.filtered_list}")
-                # elif self.mode == 19:
-                #     time.sleep(5)
-                #     self.mode +=1
-                # elif self.mode == 20:self.move_pos(5,135)
-                # elif self.mode == 21:self.move_pos(1, -2)
-                # elif self.mode == 22:self.move_pos(5, 90)
-                # elif self.mode == 23:self.move_pos(1, -2)
-                # elif self.mode == 24:self.move_pos(5, 90)
-                # elif self.mode == 25:self.move_pos(1, -2)
-                # elif self.mode == 26:self.move_pos(5, 90)
-                # elif self.mode == 27:self.move_pos(1, -2)
-                # elif self.mode == 28:self.move_pos(5, 90)
-                # elif self.mode == 29:self.move_pos(1, -2)
+                    self.handler.filter_arucos() #filter codes
+                    self.get_logger().info(f"Aruco list: {self.handler.filtered_list}") #print codes
+            
     
     def move_pos(self, axis, distance):
+        """Sends movement command to the dvl_movement_node and increase mode by 1"""
         self.move_bool = True
         msg = Twist() 
         msg.linear.x = float(axis)

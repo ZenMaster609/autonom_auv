@@ -10,6 +10,7 @@ class DynamicDisplay:
 
     @staticmethod
     def save_parameters(my_parameters):
+        """Saves current parameters in tex file in config folder under install"""
         config_path = os.path.join(get_package_share_directory('autonom_auv'), 'config', 'image_settings.tex')
         my_parameters_str = str(my_parameters)
         with open(config_path, 'a') as file:
@@ -17,6 +18,7 @@ class DynamicDisplay:
 
     @staticmethod
     def trackbar_init():
+        """Initialises trackbars"""
         cv2.namedWindow("Trackbars")
         cv2.createTrackbar("L - H", "Trackbars", 0, 179, nothing)
         cv2.createTrackbar("L - S", "Trackbars", 0, 255, nothing)
@@ -27,6 +29,7 @@ class DynamicDisplay:
 
     @staticmethod
     def find_hsv(image):
+        """use this to find HSV ranges live using trackbars"""
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         l_h = cv2.getTrackbarPos("L - H", "Trackbars")
         l_s = cv2.getTrackbarPos("L - S", "Trackbars")
