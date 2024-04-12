@@ -20,7 +20,7 @@ class PidController:
          return Offset
     
 
-     def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0):
+     def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0, u_I_max=100):
           """Discrite PID controller"""
           time_now = time.time()
           P = P/scale_devide
@@ -37,6 +37,7 @@ class PidController:
                T_s = time_now-self.Pre_time
                u_P = P*e 
                u_I=self.Pre_I+I*T_s*(e+self.Pre_offset)/2
+               if abs(u_I)>u_I_max: u_I=u_I_max*np.sign(u_I)
                e_f = (1/(1+(T_s/T_f)))*self.Pre_e_f +((T_s/T_f)/(1+(T_s/T_f)))*e 
                u_D = D*(e-self.Pre_offset)/T_s
                Output = u_P+u_I+u_D

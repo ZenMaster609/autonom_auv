@@ -36,10 +36,11 @@ class DvlMovementNode(Node):
         self.zero_yaw = False
         self.homing = False
         self.top_speed = 1000
-        pid_gir = [0.35, 2.5, 0]
-        pid_jag = [0.35, 2.5, 0]
-        pid_svai = [0.35, 2.5, 0]
+        pid_gir = [1, 0.019, 0]
+        pid_jag = [1,0.019, 0.09] 
+        pid_svai = [1,0.019, 0.07]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
+        self.u_I_max = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
 
     def send_movement(self,x = 0.0, y = 0.0, yaw =0.0, axis = 6, magnitude = 0.0):
         """Sends movements to the movement node"""
@@ -128,7 +129,7 @@ class DvlMovementNode(Node):
             return 0.0
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis])
+            vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis],self.u_I_max[axis])
             if vel > self.top_speed:vel = self.top_speed
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
             return vel

@@ -30,7 +30,7 @@ class ImageHandler:
         self.Id_list= []   
         self.aruco_printed = 0 
         self.bench_box_image = None
-        self.scale_factor = 1
+        self.scale_factor = 0.5
         
 
     def show_image(self, double):
@@ -88,12 +88,13 @@ class ImageHandler:
             if highest_box is None:done = True 
             else:done=False
             #find angle and y position of pipe relative to ROV
-            angle,angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
+            angle, angle_deg = ImageMethods.find_angle_box(highest_box,90, self.dims[1])
             angle, self.cooldown = ImageMethods.angle_cooldown(angle,self.cooldown)
             center_x,center_y = ImageMethods.find_Center(image_edit,highest_box, True)
-        except Exception as e:_ = e #Display imagefeed no matter if pipe is found.
-        cv2.putText(image_edit, f"{int(angle_deg)}",[800,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
-        ImageMethods.showImage(image_edit)
+            cv2.putText(image_edit, f"{int(angle_deg)}",[725,525], cv2.FONT_HERSHEY_SIMPLEX, 4, (0, 0, 255), 2, cv2.LINE_AA)
+        except Exception as e: #Display imagefeed no matter if pipe is found.
+            angle, center_x = 0, 0
+        ImageMethods.showImage(image_edit, 1)
         return angle,center_x, done #return relevant positional data.
   
 
@@ -140,7 +141,7 @@ class logging_data:
 
 
 
-    def plot_data(self): 
+    def plot_data(self, name): 
         """Plots up to 4 datasets from existing data"""
         fig = make_subplots(rows=2, cols=2)
         fig.add_trace(go.Scatter(x=self.time, y=self.data1),row=1, col=1)
@@ -150,11 +151,11 @@ class logging_data:
             fig.add_trace(go.Scatter(x=self.time, y=self.data3),row=2, col=1)
         if self.data4 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data4),row=2, col=2)
-        fig.write_html("plot.html")
-        image_path = "plot.html"
+        fig.write_html(name + ".html")
+        image_path = name + ".html"
         subprocess.run(['xdg-open', image_path], check=True)
 
-    def plot_data_table(self,colum1, colum2,colum3=[],plot_names=["","","",""]):
+    def plot_data_table(self, name, colum1, colum2,colum3=[],plot_names=["","","",""]):
         """Makes table and plot for several datasets"""
         fig = make_subplots(
             rows=2, cols=2,
@@ -169,6 +170,6 @@ class logging_data:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2),row=2, col=1)
         if self.data3 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data3),row=2, col=2)
-        fig.write_html("plot.html")
-        image_path = "plot.html"
+        fig.write_html(name + ".html")
+        image_path = name + ".html"
         subprocess.run(['xdg-open', image_path], check=True)

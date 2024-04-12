@@ -12,6 +12,7 @@ import signal
 from geometry_msgs.msg import Twist
 from nav_msgs.msg import Odometry
 import time
+import math
 
 class PipelineImageNode(Node):
     def __init__(self,mode):
@@ -29,13 +30,15 @@ class PipelineImageNode(Node):
         self.y_controller = PidController()
         self.handler = ImageHandler()
         self.logger = logging_data()
+        self.logger_y = logging_data()
+        self.logger_dvl = logging_data()
         self.mode=mode
         self.time_start = time.time()
         self.cv_image = None
         self.state = 0
-        self.pid_gir = [1, 0.001, 0.2]
+        self.pid_gir = [1, 0.19, 0.1]
         #[1, 0.001, 0.2]
-        self.pid_svai = [2.47, 4.12, 0.42]
+        self.pid_svai = [6,0.19, 0.14]
         self.super_start = time.time()
 
     def move_pos(self, axis, distance):
@@ -47,7 +50,9 @@ class PipelineImageNode(Node):
 
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
-        self.logger.plot_data_table(self.colum1,self.colum2,self.handler.filter_arucos(),self.plot_names)
+        #self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
+        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
+        self.logger_dvl.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_dvl)
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -67,6 +72,7 @@ class PipelineImageNode(Node):
         self.odom_roll = msg.pose.pose.orientation.x
         self.odom_pitch = msg.pose.pose.orientation.y
         self.angular_yaw = -msg.twist.twist.angular.z
+        self.velocity_y = msg.twist.twist.linear.y
 
     def listener_callback(self, data): #Get imagefeed.
         self.handler.feed_image = self.bridge.imgmsg_to_cv2(data, "bgr8") 
@@ -75,32 +81,40 @@ class PipelineImageNode(Node):
         if self.handler.feed_image is not None:
             time_elapsed = time.time() - self.super_start
             self.time_start = time.time()
-            angle,center_x, done = self.handler.find_pipeline(75000) #Get info about the pipeline position'
+            angle, center_x, done = self.handler.find_pipeline(75000) #Get info about the pipeline position'
             distance_pipe = self.odom_z-0.2
             center_x_meters = ImageMethods.pixles_to_meters(center_x,distance_pipe,self.handler.dims[1])
+            #center_x_meters = ImageMethods.pixles_to_meters69(center_x)
+            
             if self.state == 1:return #if done stop camera based movement
-            self.get_logger().info(f"time elapsed = {time_elapsed}")
+            #self.get_logger().info(f"time elapsed = {time_elapsed}")
             if done and time_elapsed > 4:
                 self.get_logger().info(f"Aruco List:{self.handler.filter_arucos()}")
                 self.state = 1
-                self.move_pos(0,0.0) #tell the DVl movement node you want to go home
+                self.move_pos(0.0,0.0) #tell the DVl movement node you want to go home
                 return
             
             set_point = ImageMethods.pixles_to_meters(self.handler.dims[1]/2,distance_pipe,self.handler.dims[1])
             offsett_x = -PidController.calculate_offset((center_x_meters),set_point)
             if self.mode ==1:
-                angle_vel = self.angular_controller.PID_controller(angle,*self.pid_gir, scale_devide=1)  #PID-regulate the ROV yaw
-                linear_y_vel = self.y_controller.PID_controller(-offsett_x,*self.pid_svai, scale_devide=1) #Do the same for ROV Y posistion
+                angle_vel = self.angular_controller.PID_controller(angle,*self.pid_gir, scale_devide=1, u_I_max=0.10)  #PID-regulate the ROV yaw
+                linear_y_vel = self.y_controller.PID_controller(-offsett_x,*self.pid_svai, scale_devide=1,u_I_max=0.02) #Do the same for ROV Y posistion
                 if linear_y_vel > 1:linear_y_vel=1.0
+                if abs(angle)> math.pi/4: linear_y_vel = 0.0
                 self.send_movement(angle_vel,linear_y_vel)   #send regulated values
-                self.get_logger().info(f" y = {offsett_x}, distance pipe = {distance_pipe}")
+                self.get_logger().info(f" angle= {angle}, angel degrees = {angle*180/math.pi}")
             else:
                 angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)  #PID-regulate the ROV yaw
                 self.send_movement(angle_vel) #send regulated value
             # gir = yaw, svai = y, jag = x
             #push logging data once per tick
-            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","Real angleuar Velocity"]
-            self.logger.log_data(angle,angle_vel,self.angular_yaw )
+           
+            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","U_I"]
+            self.logger.log_data(angle,angle_vel )
+            self.plot_names_y=["","Offsett meters","Ideal Velocity","Real Velocity"]
+            self.logger_y.log_data(offsett_x,linear_y_vel,self.velocity_y)
+            self.plot_names_dvl=["","X cordinates","Y cordinates","Pitch"]
+            self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_pitch)
             self.colum1 = ["P","I","D","Acceleration","min area box"]
             self.colum2 = [17,0.1,0,0.1,.4654,75000]
             #print(f"time5: {time.time()-self.time_start}")

@@ -284,8 +284,13 @@ class ImageMethods:
     
 
     @staticmethod
-    def pixles_to_meters(pixles, distance_from_object, dimensions):
-        meters = pixles * distance_from_object / dimensions
+    def pixles_to_meters(pixles, distance_from_object, dimension):
+        meters = pixles * distance_from_object / dimension
+        return meters 
+    
+    @staticmethod
+    def pixles_to_meters69(pixles):
+        meters = pixles * 0.01355
         return meters 
     
 
