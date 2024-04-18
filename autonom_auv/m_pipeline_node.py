@@ -51,8 +51,8 @@ class PipelineImageNode(Node):
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
         #self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
-        self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
-        #self.logger_dvl.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_dvl)
+        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
+        self.logger_dvl.plot_data_table("xy" ,self.colum1,[],[],self.plot_names_dvl)
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -70,7 +70,7 @@ class PipelineImageNode(Node):
         self.odom_y = msg.pose.pose.position.y
         self.odom_z = msg.pose.pose.position.z
         self.odom_roll = msg.pose.pose.orientation.x
-        self.odom_pitch = msg.pose.pose.orientation.y
+        self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler(msg.pose.pose.orientation.z,0,0,msg.pose.pose.orientation.w)
         self.angular_yaw = -msg.twist.twist.angular.z
         self.velocity_y = msg.twist.twist.linear.y
 
@@ -86,7 +86,13 @@ class PipelineImageNode(Node):
             center_x_meters = ImageMethods.pixles_to_meters(center_x,distance_pipe,self.handler.dims[1])
             #center_x_meters = ImageMethods.pixles_to_meters69(center_x)
             
-            if self.state == 1:return #if done stop camera based movement
+            if self.state == 1:
+                self.plot_names_dvl=["","X cordinates","Y cordinates","Yaw"]
+                self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_yaw)
+                self.colum1 = ["P","I","D","Acceleration","min area box"]
+                self.colum2 = [17,0.1,0,0.1,.4654,75000]
+                return #if done stop camera based movement
+            
             #self.get_logger().info(f"time elapsed = {time_elapsed}")
             if done and time_elapsed > 4:
                 self.get_logger().info(f"Aruco List:{self.handler.filter_arucos()}")
@@ -115,10 +121,7 @@ class PipelineImageNode(Node):
             self.plot_names_y=["","Offsett meters","Ideal Velocity","Real Velocity"]
             self.logger_y.log_data(offsett_x,linear_y_vel,self.velocity_y)
            
-            self.plot_names_dvl=["","X cordinates","Y cordinates","Pitch"]
-            self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_pitch)
-            self.colum1 = ["P","I","D","Acceleration","min area box"]
-            self.colum2 = [17,0.1,0,0.1,.4654,75000]
+
             #print(f"time5: {time.time()-self.time_start}")
         
 def main(args=None):
