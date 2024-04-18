@@ -36,9 +36,9 @@ class PipelineImageNode(Node):
         self.time_start = time.time()
         self.cv_image = None
         self.state = 0
-        self.pid_gir = [1, 0.19, 0.19]
+        self.pid_gir =[1, 0.19, 0.19] #[0.56, 2.89, 0.18]
         #[1, 0.001, 0.2]
-        self.pid_svai =[6,0.19, 0.14]
+        self.pid_svai =[0.55, 2.84, 0.13]#[6,0.19, 0.14]
         self.super_start = time.time()
 
     def move_pos(self, axis, distance):
@@ -51,8 +51,8 @@ class PipelineImageNode(Node):
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
         #self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
-        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
-        self.logger_dvl.plot_data_table("xy" ,self.colum1,[],[],self.plot_names_dvl)
+        self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
+        #self.logger_dvl.plot_data("xy" ,self.plot_names_dvl)
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -87,7 +87,7 @@ class PipelineImageNode(Node):
             #center_x_meters = ImageMethods.pixles_to_meters69(center_x)
             
             if self.state == 1:
-                self.plot_names_dvl=["","X cordinates","Y cordinates","Yaw"]
+                self.plot_names_dvl=["X cordinates","Y cordinates","Yaw",""]
                 self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_yaw)
                 self.colum1 = ["P","I","D","Acceleration","min area box"]
                 self.colum2 = [17,0.1,0,0.1,.4654,75000]

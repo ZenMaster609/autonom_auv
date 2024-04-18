@@ -37,8 +37,8 @@ class DvlMovementNode(Node):
         self.homing = False
         self.top_speed = 0.4
         pid_gir = [0.14, 0.0, 0.0]
-        pid_jag = [1,0.00, 0.1] 
-        pid_svai = [1,0.0, 0.1]
+        pid_jag = [1,0.00, 0.0] 
+        pid_svai = [1,0.0, 0.0]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
         self.u_I_max = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
 

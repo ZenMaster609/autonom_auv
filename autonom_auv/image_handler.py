@@ -58,7 +58,7 @@ class ImageHandler:
             boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
             bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
             positions, area = ImageMethods.get_box_info(bench)
-            angle = ImageMethods.find_angle_box(bench,180, self.dims[1])
+            angle, angle_deg = ImageMethods.find_angle_box(bench,180, self.dims[1])
             #Back of bench is smaller than front, this makes for a different distance measure in pixels.
             if front:size = (self.scale_factor**2)*8000000/area
             else: size = (self.scale_factor**2)*14000000/area
@@ -141,9 +141,10 @@ class logging_data:
 
 
 
-    def plot_data(self, name): 
+    def plot_data(self, name, plot_names=["","","",""]): 
         """Plots up to 4 datasets from existing data"""
-        fig = make_subplots(rows=2, cols=2)
+        fig = make_subplots(rows=2, cols=2,
+        subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
         fig.add_trace(go.Scatter(x=self.time, y=self.data1),row=1, col=1)
         if self.data2 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2),row=1, col=2)

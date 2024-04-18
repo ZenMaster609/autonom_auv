@@ -109,6 +109,7 @@ class MBenchNode(Node):
                     self.mode += 1
                 return 
             elif key == 'align':
+                    self.get_logger().info(f"angle = {self.angle}")
                     yaw_vel = self.yaw_controller.PID_controller(self.angle,P=20, I=0.001, D=0.0, T_f=0.5, scale_devide=5000, margin=0.2)
                     self.get_logger().info(f"angle = {self.angle}, yaw_vel = {yaw_vel}")
                     self.send_movement(yaw = yaw_vel)
@@ -150,7 +151,7 @@ class MBenchNode(Node):
                     self.move_pos(5,90) # turn 90 deg 
                     if not self.front:self.mode += 3 #Check if were behind the bench, if so skip to mode 10. 
                 elif self.mode == 8:
-                    self.move_pos(1,-2.8)  #Slide to the right to position behind the bench
+                    self.move_pos(1,-3.5)  #Slide to the right to position behind the bench #-2.8
                 elif self.mode == 9:
                     self.move_pos(5,90) #rotate 90 deg
                     self.front = False #Now the ROV is behind the bench

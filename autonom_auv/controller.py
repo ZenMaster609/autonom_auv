@@ -20,14 +20,13 @@ class PidController:
          return Offset
     
 
-     def PID_controller(self,e,P=0,I=0,D=0,T_f=0.5,scale_devide=1, margin=0, u_I_max=100):
+     def PID_controller(self,e,P=0.0,I=0.0,D=0.0,T_f=0.5,scale_devide=1, margin=0, u_I_max=100):
           """Discrite PID controller"""
           time_now = time.time()
           P = P/scale_devide
           I = I/scale_devide
           D = D/scale_devide
           margin = margin/scale_devide
-          
           if self.Pre_time is None:
                Output = P*e
                u_I = 0
