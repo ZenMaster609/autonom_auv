@@ -65,7 +65,8 @@ class PipelineImageNode(Node):
 
     def timer_callback1(self):
         if self.handler.feed_image is not None:
-            angle_deg,center_x, done,image_edit = self.handler.find_pipeline(15000)
+            angle_deg,center_x, done = self.handler.find_pipeline(15000)
+            image_edit = self.handler.feed_image 
             if self.video_writer2 is None:
                 # Define the codec and create VideoWriter object
                 fourcc = cv2.VideoWriter_fourcc(*'mp4v')

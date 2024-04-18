@@ -101,7 +101,7 @@ class MBenchNode(Node):
         if self.found_bench == True:
             if key == 'slide_in':
                 y_offset = self.handler.dims[1]/2 - self.positions['center'][0] - 30
-                y_vel = self.y_controller.PID_controller(y_offset,20,0.0,0.0,0.5,5000)
+                y_vel = self.y_controller.PID_controller(y_offset,P=20, I=0.001, D=0.0, T_f=0.5, scale_devide=5000, margin=0.2)
                 self.get_logger().info(f"y_offset = {y_offset}, y_vel = {y_vel}")
                 self.send_movement(y=y_vel)
                 if abs(y_offset) < 5:
@@ -109,7 +109,7 @@ class MBenchNode(Node):
                     self.mode += 1
                 return 
             elif key == 'align':
-                    yaw_vel = self.yaw_controller.PID_controller(self.angle,20,0.0,0.0,0.5,5000)
+                    yaw_vel = self.yaw_controller.PID_controller(self.angle,P=20, I=0.001, D=0.0, T_f=0.5, scale_devide=5000, margin=0.2)
                     self.get_logger().info(f"angle = {self.angle}, yaw_vel = {yaw_vel}")
                     self.send_movement(yaw = yaw_vel)
                     if len(self.angle_list) > 10:
@@ -119,8 +119,8 @@ class MBenchNode(Node):
             else:
                 distance_offset = self.size - self.desired_distance
                 y_offset = self.handler.dims[1]/2 - self.positions[key][0]
-                x_vel = self.x_controller.PID_controller(distance_offset,20,0.001,0.0,0.5,5000)
-                y_vel = self.y_controller.PID_controller(y_offset,6,0.0001,0.0,0.5,5000)
+                x_vel = self.x_controller.PID_controller(distance_offset,P=20, I=0.001, D=0.0, T_f=0.5, scale_devide=5000, margin=0.2)
+                y_vel = self.y_controller.PID_controller(y_offset, P =6, I=0.0001, D=0.0, T_f=0.5, scale_devide=5000, margin=0.1)
                 self.get_logger().info(f"distance_offset = {round(distance_offset,4)}, x_vel = {round(x_vel,4)}, y_offset = {round(y_offset,4)}, y_vel = {round(y_vel,4)}")
                 self.send_movement(x=x_vel, y=y_vel)
                 if abs(distance_offset) < 5/accuracy and abs(y_offset) < self.handler.dims[1]/8*accuracy:

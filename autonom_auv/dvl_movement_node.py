@@ -35,9 +35,9 @@ class DvlMovementNode(Node):
         self.treshold = 0.01
         self.zero_yaw = False
         self.homing = False
-        self.top_speed = 1000
-        pid_gir = [1, 0.019, 0]
-        pid_jag = [1,0.019, 0.09] 
+        self.top_speed = 0.4
+        pid_gir = [1, 0.00, 0]
+        pid_jag = [1,0.00, 0.0] 
         pid_svai = [1,0.019, 0.07]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
         self.u_I_max = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
@@ -130,7 +130,7 @@ class DvlMovementNode(Node):
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
             vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis],self.u_I_max[axis])
-            if vel > self.top_speed:vel = self.top_speed
+            if abs(vel) > self.top_speed:vel = self.top_speed*np.sign(vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
             return vel
 

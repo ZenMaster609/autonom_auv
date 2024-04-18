@@ -18,7 +18,7 @@ class USB_Camera(Node):
         self.video_writer = None
 
         # Run system commands to configure camera and Cheese settings
-        self.run_system_commands()
+        #self.run_system_commands()
 
         # Initialize video capture
         self.initialize_video_capture()
@@ -38,8 +38,8 @@ class USB_Camera(Node):
         # Initialize OpenCV video capture with the V4L2 backend
         self.cap = cv2.VideoCapture(0, cv2.CAP_V4L2)
         # Set the resolution for OpenCV video capture
-        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
 
     def timer_callback(self):
         ret, frame = self.cap.read()

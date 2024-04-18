@@ -36,9 +36,9 @@ class PipelineImageNode(Node):
         self.time_start = time.time()
         self.cv_image = None
         self.state = 0
-        self.pid_gir = [1, 0.19, 0.1]
+        self.pid_gir = [1, 0.19, 0.19]
         #[1, 0.001, 0.2]
-        self.pid_svai = [6,0.19, 0.14]
+        self.pid_svai =[6,0.19, 0.14]
         self.super_start = time.time()
 
     def move_pos(self, axis, distance):
@@ -51,8 +51,8 @@ class PipelineImageNode(Node):
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
         #self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
-        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
-        self.logger_dvl.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_dvl)
+        self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
+        #self.logger_dvl.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_dvl)
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -109,10 +109,12 @@ class PipelineImageNode(Node):
             # gir = yaw, svai = y, jag = x
             #push logging data once per tick
            
-            self.plot_names=["","angle offset in degrees","Ideal angleuar Velocity","U_I"]
-            self.logger.log_data(angle,angle_vel )
+            self.plot_names=["","Angle offset in degrees","Ideal angular velocity","Real angular velocity"]
+            self.logger.log_data(angle,angle_vel, self.angular_yaw )
+
             self.plot_names_y=["","Offsett meters","Ideal Velocity","Real Velocity"]
             self.logger_y.log_data(offsett_x,linear_y_vel,self.velocity_y)
+           
             self.plot_names_dvl=["","X cordinates","Y cordinates","Pitch"]
             self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_pitch)
             self.colum1 = ["P","I","D","Acceleration","min area box"]
