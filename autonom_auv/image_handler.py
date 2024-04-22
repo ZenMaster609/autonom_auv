@@ -60,8 +60,8 @@ class ImageHandler:
             positions, area = ImageMethods.get_box_info(bench)
             angle, angle_deg = ImageMethods.find_angle_box(bench,180, self.dims[1])
             #Back of bench is smaller than front, this makes for a different distance measure in pixels.
-            if front:size = (self.scale_factor**2)*8000000/area
-            else: size = (self.scale_factor**2)*14000000/area
+            if front:size = (self.scale_factor**2)*80000/area
+            else: size = (self.scale_factor**2)*160000/area
         except Exception as e:_ = e #Display camerafeeds no matter if bench is found or not.
         cv2.putText(image_edit, f"Mode:{mode}",[700,525], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
         showImage = ImageMethods.stack_images([image_edit,image_edit2])
@@ -122,22 +122,34 @@ class logging_data:
         self.data2 = []
         self.data3 = []
         self.data4 = []
+        self.markers1 = []
+        self.markers2 = []
+        self.markers3 = []
+        self.markers4 = []
         self.start_time = time.time()
     
-    def log_data(self,value1=None,value2=None,value3=None,value4=None):
+    def log_data(self,value1=None,value2=None,value3=None,
+                 value4=None,marker1=None,marker2=None,marker3=None,marker4=None):
         """Appends new data for up to 4 datasets"""
         time_now = time.time()-self.start_time
         time_now = round(time_now,3)
         self.time.append(time_now)
         value1 = round(value1,3)
+        self.markers1.append(f"mode: {marker1}")
         self.data1.append(value1)
         if value2 is not None:
             value2 = round(value2,3)
             self.data2.append(value2)
+            self.markers2.append(f"mode: {marker2}")
         if value3 is not None:
             value3 = round(value3,3)
             self.data3.append(value3)
-        if value4 is not None:self.data4.append(value4)
+            self.markers3.append(f"mode: {marker3}")
+        if value4 is not None:
+            value4= round(value4,3)
+            self.data4.append(value4)
+            self.markers4.append(f"mode: {marker4}")
+
 
 
 
@@ -145,7 +157,7 @@ class logging_data:
         """Plots up to 4 datasets from existing data"""
         fig = make_subplots(rows=2, cols=2,
         subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
-        fig.add_trace(go.Scatter(x=self.time, y=self.data1),row=1, col=1)
+        fig.add_trace(go.Scatter(x=self.time, y=self.data1),row=1, col=1,)
         if self.data2 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2),row=1, col=2)
         if self.data3 is not None:
@@ -171,6 +183,21 @@ class logging_data:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2),row=2, col=1)
         if self.data3 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data3),row=2, col=2)
+        fig.write_html(name + ".html")
+        image_path = name + ".html"
+        subprocess.run(['xdg-open', image_path], check=True)
+
+    def plot_data_markers(self, name, plot_names=["","","",""]): 
+        """Plots up to 4 datasets from existing data"""
+        fig = make_subplots(rows=2, cols=2,
+        subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
+        fig.add_trace(go.Scatter(x=self.time, y=self.data1,text=self.markers1,),row=1, col=1,)
+        if self.data2 is not None:
+            fig.add_trace(go.Scatter(x=self.time, y=self.data2,text=self.markers2),row=1, col=2)
+        if self.data3 is not None:
+            fig.add_trace(go.Scatter(x=self.time, y=self.data3,text=self.markers3),row=2, col=1)
+        if self.data4 is not None:
+            fig.add_trace(go.Scatter(x=self.time, y=self.data4,text=self.markers4),row=2, col=2)
         fig.write_html(name + ".html")
         image_path = name + ".html"
         subprocess.run(['xdg-open', image_path], check=True)

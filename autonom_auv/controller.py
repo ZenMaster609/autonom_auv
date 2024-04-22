@@ -20,7 +20,7 @@ class PidController:
          return Offset
     
 
-     def PID_controller(self,e,P=0.0,I=0.0,D=0.0,T_f=0.5,scale_devide=1, margin=0, u_I_max=100):
+     def PID_controller(self,e,P=0.0,I=0.0,D=0.0,T_f=0.5,scale_devide=1, margin=0, u_I_max=100, max_out = 1000000):
           """Discrite PID controller"""
           time_now = time.time()
           P = P/scale_devide
@@ -50,6 +50,8 @@ class PidController:
 
           #if abs(Output) < margin:
           #     Output = 0.0
+          if abs(Output) > max_out:
+               Output = max_out*np.sign(Output)
           return Output
 
 class transfer_funtion_class: 

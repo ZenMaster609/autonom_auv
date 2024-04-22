@@ -32,15 +32,20 @@ class DvlMovementNode(Node):
         self.pos = [None,None,None,None,None,None]
         self.target_pos = [None,None,None,None,None,None]
         self.speed_scale = 1
-        self.treshold = 0.01
+        self.treshold = [0.05,0.05,0.05,0.001,0.001,0.01]
         self.zero_yaw = False
         self.homing = False
-        self.top_speed = 0.4
+        self.top_speed = [0.3, 0.3, 0.3, 0.1, 0.1, 0.1]
         pid_gir = [0.14, 0.0, 0.0]
         pid_jag = [1,0.00, 0.0] 
         pid_svai = [1,0.0, 0.0]
+
+        pid_gir = [1.5, 0.3, 0.1]
+        pid_jag = [1,0.19, 0.19] 
+        pid_svai = [6,0.19, 0.13]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
-        self.u_I_max = [0.01, 0.01, 0.01, 0.01, 0.01, 0.01]
+        self.margin = [0.05,0.05,0.05, 0.001, 0.001, 0.001]
+        self.u_I_max = [0.1, 0.1,0.1, 0.1, 0.1, 0.01]
 
     def send_movement(self,x = 0.0, y = 0.0, yaw =0.0, axis = 6, magnitude = 0.0):
         """Sends movements to the movement node"""
@@ -121,7 +126,7 @@ class DvlMovementNode(Node):
         elif axis == 1:_, pos_fixed = self.xytrig() 
         else:pos_fixed = self.pos[axis]
         
-        if abs(self.target_pos[axis] - pos_fixed) < self.treshold: # Check if we are close to the target
+        if abs(self.target_pos[axis] - pos_fixed) < self.treshold[axis]: # Check if we are close to the target
             self.send_movement(axis=axis, magnitude =0.0)
             self.target_pos[axis] = None
             self.get_logger().info(f"reached goal in axis {axis}")
@@ -129,8 +134,8 @@ class DvlMovementNode(Node):
             return 0.0
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis],self.u_I_max[axis])
-            if abs(vel) > self.top_speed:vel = self.top_speed*np.sign(vel)
+            vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis],self.u_I_max[axis],margin=self.margin[axis])
+            if abs(vel) > self.top_speed[axis]:vel = self.top_speed[axis]*np.sign(vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
             return vel
 

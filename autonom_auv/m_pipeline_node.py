@@ -37,8 +37,7 @@ class PipelineImageNode(Node):
         self.cv_image = None
         self.state = 0
         self.pid_gir =[1, 0.19, 0.19] #[0.56, 2.89, 0.18]
-        #[1, 0.001, 0.2]
-        self.pid_svai =[0.55, 2.84, 0.13]#[6,0.19, 0.14]
+        self.pid_svai =[6,0.19, 0.14] #[0.55, 2.84, 0.13]
         self.super_start = time.time()
 
     def move_pos(self, axis, distance):
@@ -67,7 +66,7 @@ class PipelineImageNode(Node):
     def odom_callback(self, msg):
         """Fetch the odom of the ROV"""
         self.odom_x = msg.pose.pose.position.x
-        self.odom_y = msg.pose.pose.position.y
+        self.odom_y = msg.pose.pose.position.y   
         self.odom_z = msg.pose.pose.position.z
         self.odom_roll = msg.pose.pose.orientation.x
         self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler(msg.pose.pose.orientation.z,0,0,msg.pose.pose.orientation.w)
