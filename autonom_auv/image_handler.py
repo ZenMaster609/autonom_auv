@@ -43,6 +43,7 @@ class ImageHandler:
         
     def find_bench(self, front, mode):
         #Copy and scale current imagefeeds
+        original = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         image_edit2 = ImageMethods.scale_image(self.feed_image2.copy(), scale_factor=self.scale_factor)
         #Check for AruCo-codes
@@ -51,11 +52,12 @@ class ImageHandler:
         self.dims = image_edit.shape
         #Apply HSV mask to make a binary image
         hsv_range = self.hsv_range_bib["visual_long_distance"]
-        hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
+        masked, hsv = ImageMethods.color_filter(image_edit , hsv_range, True)
+        fixed_hsv = ImageMethods.fix_hsv(masked)
         #Try to find bench by finding the biggest box.
         #Find the angle and size of the box to decide distance and yaw relative to bench
         try:
-            boxes = ImageMethods.find_boxes(hsv_image, image_edit, 500, False)
+            boxes = ImageMethods.find_boxes(masked, image_edit, 500, False)
             bench = ImageMethods.find_biggest_box(image_edit, boxes, True) 
             positions, area = ImageMethods.get_box_info(bench)
             angle, angle_deg = ImageMethods.find_angle_box(bench,180, self.dims[1])
@@ -64,8 +66,16 @@ class ImageHandler:
             else: size = (self.scale_factor**2)*160000/area
         except Exception as e:_ = e #Display camerafeeds no matter if bench is found or not.
         cv2.putText(image_edit, f"Mode:{mode}",[700,525], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
-        showImage = ImageMethods.stack_images([image_edit,image_edit2])
+        cv2.putText(image_edit, f"Angle:{round(angle_deg, 1)}",[550,50], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
+        #showImage = ImageMethods.stack_images([image_edit,image_edit2])
+        showImage = ImageMethods.stack_images([original,hsv,fixed_hsv,image_edit])
         ImageMethods.showImage(showImage)
+        # self.feed_image = cv2.resize(self.feed_image, (0,0), fx=0.5, fy=0.5)
+        # s1 = np.hstack((self.feed_image,self.feed_image))
+        # s2 = np.hstack((cv2.cvtColor(self.hsv_image, cv2.COLOR_BAYER_BG2BGR),image_edit))
+        # s3 = np.vstack((s1,s2))
+        # s3 = cv2.resize(s3, (0,0), fx=0.25, fy=0.25)
+        # ImageMethods.showImage(s3, 1)
         return size, positions, angle #return relevant positional data.
         
 
@@ -75,14 +85,15 @@ class ImageHandler:
         self.dims = image_edit.shape
         #Make binary picture using HSV mask
         hsv_range = self.hsv_range_bib["pipeline_sim"]
-        hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
+        hsv_img = cv2.cvtColor(image_edit, cv2.COLOR_BGR2HSV)
+        self.hsv_image = ImageMethods.color_filter(image_edit , hsv_range)
         #Find AruCo-codes
         self.aruco_handler(image_edit)
         #Try to find pipe(s)
         try:
             #paint a line to split the pipe
-            cv2.line(hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
-            box_list = ImageMethods.find_boxes(hsv_image, image_edit, (self.scale_factor**2)*min_box_sice, True)
+            cv2.line(self.hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
+            box_list = ImageMethods.find_boxes(self.hsv_image, image_edit, (self.scale_factor**2)*min_box_sice, True)
             highest_box = ImageMethods.find_highest_box(box_list)
             #Find the box highest in the picture as desired pipe to trace, if no pipe then alert the mission node that mission is done.
             if highest_box is None:done = True 

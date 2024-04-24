@@ -29,7 +29,7 @@ def generate_launch_description():
 
     #spawn ROV
     spawn_entity = Node(package='gazebo_ros', executable='spawn_entity.py',
-                        arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '1', '--ros-args', '--log-level', 'WARN'], output='screen')
+                        arguments=['-topic', 'robot_description', '-entity', 'my_bot', '-z', '1', '-Y', '0.4', '--ros-args', '--log-level', 'WARN'], output='screen')
 
 
     #Configure/include other nodes

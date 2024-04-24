@@ -34,6 +34,8 @@ class MBenchNode(Node):
         self.handler = ImageHandler()
         self.x_controller = PidController()
         self.y_controller = PidController()
+        self.y_controller2 = PidController()
+        self.y_controller3 = PidController()
         self.yaw_controller = PidController()
         self.logger_slide = logging_data()
         self.logger_align = logging_data()
@@ -51,8 +53,8 @@ class MBenchNode(Node):
         self.dvl_zeroed = False
         self.found_bench = False
         pid_gir = [1.5, 0.3, 0.1]
-        pid_jag = [0.1, 0.01, 0.01] 
-        pid_svai = [0.1, 0.01, 0.01]
+        pid_jag = [0.4, 0.3, 0.02]  #[0.1, 0.3, 0.01] 
+        pid_svai = [0.4, 0.3, 0.02]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
 
     def custom_cleanup(self):
@@ -133,17 +135,17 @@ class MBenchNode(Node):
             pix_per_m = bench_width_pix/2.485
             m_per_pix = 2.485/bench_width_pix
             if key == 'slide_in':
-                y_offset = (self.handler.dims[1]/2 - self.positions['center'][0] - 30)*m_per_pix
-                y_vel = self.y_controller.PID_controller(y_offset,*self.pid[1], max_out = 0.2)
+                y_offset = (self.handler.dims[1]/2 - self.positions['center'][0] - 20)*m_per_pix
+                y_vel = self.y_controller.PID_controller(y_offset,*self.pid[1], max_out = 0.2, u_I_max=0.1)
                 self.logger_slide.log_data(y_offset,y_vel)
                 self.get_logger().info(f"mode:{self.mode} slide y_offset = {y_offset}, y_vel = {y_vel}")
                 self.send_movement(y=y_vel)
                 if abs(y_offset) < 0.01:
                     self.publish_z(1.6)
                     self.mode += 1
-                return 
+
             elif key == 'align':
-                    yaw_vel = self.yaw_controller.PID_controller(self.angle, *self.pid[5], max_out = 0.1)
+                    yaw_vel = self.yaw_controller.PID_controller(self.angle, *self.pid[5], max_out = 0.1, u_I_max=0.01)
                     self.logger_align.log_data(self.angle,yaw_vel)
                     self.get_logger().info(f"mode:{self.mode} align angle = {self.angle}, yaw_vel = {yaw_vel}")
                     self.send_movement(yaw = yaw_vel)
@@ -151,23 +153,21 @@ class MBenchNode(Node):
                         filtered_angle = sum(self.angle_list[-10:]) / 10
                         if abs(filtered_angle) < 0.01:
                             self.mode+=1
-            elif key =='center':
+
+            elif key =='distance':
                 distance_offset = self.size - self.desired_distance
-                y_offset = (self.handler.dims[1]/2 - self.positions[key][0])*m_per_pix
-                self.logger_else.log_data(distance_offset,y_offset)
-                x_vel = self.x_controller.PID_controller(distance_offset,*self.pid[0])
-                y_vel = self.y_controller.PID_controller(y_offset, *self.pid[1])
-                self.get_logger().info(f"mode:{self.mode} distance_offset = {round(distance_offset,4)}, x_vel = {round(x_vel,4)}, y_offset = {round(y_offset,4)}, y_vel = {round(y_vel,4)}")
-                self.send_movement(x=x_vel, y=y_vel)
-                if abs(distance_offset) < 0.5/accuracy and abs(y_offset) < 0.5/accuracy:
-                    self.mode += 1  
+                x_vel = self.x_controller.PID_controller(distance_offset,*self.pid[0], u_I_max=0.03)
+                self.send_movement(x=x_vel)
+                if abs(distance_offset) < 0.01/accuracy:
+                        self.mode += 1 
+                        
             else:
                 y_offset = (self.handler.dims[1]/2 - self.positions[key][0])*m_per_pix
                 self.logger_else.log_data(y_offset)
-                y_vel = self.y_controller.PID_controller(y_offset, *self.pid[1])
+                y_vel = self.y_controller.PID_controller(y_offset, *self.pid[1], u_I_max=0.1)
                 self.get_logger().info(f"mode:{self.mode} key = {key}, y_offset = {round(y_offset,4)}, y_vel = {round(y_vel,4)}")
                 self.send_movement(y=y_vel)
-                if abs(y_offset) < 0.02/accuracy:
+                if abs(y_offset) < 0.05/accuracy:
                     self.mode += 1  
                
 
@@ -190,11 +190,11 @@ class MBenchNode(Node):
                 if self.mode == 0:
                     self.camera_regulator('align')
                 elif self.mode == 1:
-                    self.camera_regulator('center', 5)
+                    self.camera_regulator('center')
                 elif self.mode == 2:
-                    self.camera_regulator('align')
+                    self.camera_regulator('distance', 5)
                 elif self.mode == 3:
-                    self.camera_regulator('center', 20) #find center with high accuracy
+                    self.camera_regulator('align')
                 elif self.mode == 4:
                     if self.front:self.zero_dvl()
                     self.mode +=1

@@ -60,14 +60,15 @@ class ImageMethods:
 
 
     @staticmethod 
-    def color_filter(image, range:list):
+    def color_filter(image, range:list, debug = False):
         "Takes in an image and a HSV range, return a black and white image"  
         image_HSV = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         HSV_lower = np.array(range[0])
         HSV_upper = np.array(range[1])
         mask = cv2.inRange(image_HSV,HSV_lower,HSV_upper)
         maskM = cv2.medianBlur(mask, 5)
-        return maskM 
+        if debug:return maskM, image_HSV
+        else:return maskM
 
 
     
