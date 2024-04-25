@@ -15,6 +15,7 @@ class USB_Camera(Node):
          self.cap = cv2.VideoCapture(0)
          self.cv_bridge = CvBridge()
          self.calibrate = False
+         self.record = False
          if self.calibrate:
             self.criteria = (cv2.TERM_CRITERIA_EPS + cv2.TERM_CRITERIA_MAX_ITER, 30, 0.001)
             self.chessboard_size = (7, 9)  # 7 corners in width, 6 in height
@@ -74,18 +75,17 @@ class USB_Camera(Node):
             img_resized = cv2.resize(img, (width_img, height))
             dst_resized = cv2.resize(dst, (width_dst, height))
             
-            imgshow = np.hstack((img_resized, dst_resized))
-
             self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(dst_resized,"bgr8"))
 
-                        # Write frame to video file
-            if self.video_writer is None:
-                # Define the codec and create VideoWriter object
-                fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-                self.video_writer = cv2.VideoWriter('output.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
+            if self.record:
+                # Write frame to video file
+                if self.video_writer is None:
+                    # Define the codec and create VideoWriter object
+                    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+                    self.video_writer = cv2.VideoWriter('output.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
 
-            # Write the frame
-            self.video_writer.write(dst_resized)
+                # Write the frame
+                self.video_writer.write(dst_resized)
 
 
 def main(args=None):
