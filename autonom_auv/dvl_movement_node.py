@@ -39,7 +39,6 @@ class DvlMovementNode(Node):
         pid_gir = [0.14, 0.0, 0.0]
         pid_jag = [1,0.00, 0.0] 
         pid_svai = [1,0.0, 0.0]
-
         pid_gir = [1.5, 0.3, 0.1]
         pid_jag = [1,0.19, 0.19] 
         pid_svai = [6,0.19, 0.13]
@@ -53,6 +52,7 @@ class DvlMovementNode(Node):
         msg.linear.x = x
         msg.linear.y = y
         msg.angular.z = yaw
+
         if axis == 0:msg.linear.x = magnitude
         elif axis == 1:msg.linear.y = magnitude
         elif axis == 2:msg.linear.z = magnitude

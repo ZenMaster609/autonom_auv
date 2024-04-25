@@ -21,7 +21,7 @@ class PipelineImageNode(Node):
         self.create_subscription(Image,'/camera/image_raw',  self.listener_callback,10)
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.publisher = self.create_publisher(Twist, '/target', 10)
-        self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
+        self.publisher1 = self.create_publisher(Twist, 'tf_movement', 10) #/tf_movement
         self.create_timer(0.05, self.timer_callback1)  
 
         #Variable declaration
@@ -49,8 +49,8 @@ class PipelineImageNode(Node):
 
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
-        #self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
-        self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
+        self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
+        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
         #self.logger_dvl.plot_data("xy" ,self.plot_names_dvl)
         self.get_logger().info(f'I ran')
 
@@ -110,12 +110,12 @@ class PipelineImageNode(Node):
                 self.get_logger().info(f" angle= {angle}, angel degrees = {angle*180/math.pi}")
             else:
                 angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)  #PID-regulate the ROV yaw
-                self.send_movement(angle_vel) #send regulated value
+                self.send_movement(linear_y_vel) #send regulated value
             # gir = yaw, svai = y, jag = x
             #push logging data once per tick
            
             self.plot_names=["","Angle offset in degrees","Ideal angular velocity","Real angular velocity"]
-            self.logger.log_data(angle,angle_vel, self.angular_yaw )
+            self.logger.log_data(angle,-angle_vel, self.angular_yaw )
 
             self.plot_names_y=["","Offsett meters","Ideal Velocity","Real Velocity"]
             self.logger_y.log_data(offsett_x,linear_y_vel,self.velocity_y)
