@@ -36,8 +36,8 @@ class USB_Camera(Node):
                 self.get_logger().info(f"{self.mtx}")
                 self.get_logger().info(f"{self.dist}")
 
-    def timer_callback(self):
-        ret, frame = self.cap.read()
+    def impliment_matrix(self,camera_port): 
+        ret, frame = self.cap.read(camera_port)
 
         if ret == True:
             if self.calibrate:
@@ -75,7 +75,12 @@ class USB_Camera(Node):
             img_resized = cv2.resize(img, (width_img, height))
             dst_resized = cv2.resize(dst, (width_dst, height))
             
-            self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(dst_resized,"bgr8"))
+            return dst_resized
+
+    def timer_callback(self):
+            
+            dst_image = self.impliment_matrix(0)
+            self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(dst_image,"bgr8"))
 
             if self.record:
                 # Write frame to video file
@@ -83,9 +88,8 @@ class USB_Camera(Node):
                     # Define the codec and create VideoWriter object
                     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
                     self.video_writer = cv2.VideoWriter('output.mp4', fourcc, 20.0, (dst_resized.shape[1], dst_resized.shape[0]))
-
                 # Write the frame
-                self.video_writer.write(dst_resized)
+                self.video_writer.write(dst_image)
 
 
 def main(args=None):
