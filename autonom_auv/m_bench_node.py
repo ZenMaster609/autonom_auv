@@ -139,7 +139,8 @@ class MBenchNode(Node):
             m_per_pix = 2.485/bench_width_pix
             if key == 'slide_in':
                 y_offset = (self.handler.dims[1]/2 - self.positions['center'][0] - 20)*m_per_pix
-                y_vel = self.y_controller.PID_controller(y_offset,*self.pid[1], max_out = 0.2, u_I_max=0.1)
+                y_vel = self.y_controller.PID_controller
+                (y_offset,*self.pid[1], max_out = 0.2, u_I_max=0.1)
                 self.logger_slide.log_data(y_offset,y_vel)
                 self.get_logger().info(f"mode:{self.mode} slide y_offset = {y_offset}, y_vel = {y_vel}")
                 self.send_movement(y=y_vel)
