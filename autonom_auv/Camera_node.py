@@ -80,7 +80,8 @@ class USB_Camera(Node):
     def timer_callback(self):
             
             dst_image = self.impliment_matrix(0)
-            self.publisher.publish(self.cv_bridge.cv2_to_imgmsg(dst_image,"bgr8"))
+            self.publisher.publish(
+                self.cv_bridge.cv2_to_imgmsg(dst_image,"bgr8"))
 
             if self.record:
                 # Write frame to video file
