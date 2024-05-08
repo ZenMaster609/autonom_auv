@@ -91,7 +91,8 @@ class PipelineImageNode(Node):
             
             if self.state == 1:
                 self.plot_names_dvl=["X cordinates","Y cordinates","Yaw",""]
-                self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_yaw)
+                self.logger_dvl.log_data
+                    (self.odom_x,self.odom_y,self.odom_yaw)
                 self.colum1 = ["P","I","D","Acceleration","min area box"]
                 self.colum2 = [17,0.1,0,0.1,.4654,75000]
                 return #if done stop camera based movement
