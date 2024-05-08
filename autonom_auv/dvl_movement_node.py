@@ -134,7 +134,8 @@ class DvlMovementNode(Node):
             return 0.0
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = self.blind_pid[axis].PID_controller(offset,*self.pid[axis],self.u_I_max[axis],margin=self.margin[axis])
+            vel = self.blind_pid[axis].PID_controller
+                (offset,*self.pid[axis],self.u_I_max[axis],margin=self.margin[axis])
             if abs(vel) > self.top_speed[axis]:vel = self.top_speed[axis]*np.sign(vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
             return vel
