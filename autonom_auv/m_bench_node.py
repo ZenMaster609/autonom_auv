@@ -76,12 +76,15 @@ class MBenchNode(Node):
         self.odom_y = msg.pose.pose.position.y
         self.odom_z = msg.pose.pose.position.z
         self.odom_roll = msg.pose.pose.orientation.x
-        self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler(msg.pose.pose.orientation.z,msg.pose.pose.orientation.y,
-                                                             msg.pose.pose.orientation.z,msg.pose.pose.orientation.w)
+        self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler
+        (msg.pose.pose.orientation.z,msg.pose.pose.orientation.y,
+         msg.pose.pose.orientation.z,msg.pose.pose.orientation.w)
         self.angular_yaw = -msg.twist.twist.angular.z
         self.velocity_y = msg.twist.twist.linear.y
         self.plot_names = ["X","y", "angular yaw", ""]
-        self.logger_dvl.log_data(self.odom_x,self.odom_y,np.degrees(2*self.angular_yaw),marker1=self.mode,marker2=self.mode,marker3=self.mode)
+        self.logger_dvl.log_data(self.odom_x,self.odom_y,
+                 np.degrees(2*self.angular_yaw),marker1=self.mode,
+                 marker2=self.mode,marker3=self.mode)
 
 
     def send_movement(self, x=0.0, y=0.0, z=0.0, roll=0.0, pitch=0.0, yaw=0.0):
@@ -156,7 +159,8 @@ class MBenchNode(Node):
 
             elif key =='distance':
                 distance_offset = self.size - self.desired_distance
-                x_vel = self.x_controller.PID_controller(distance_offset,*self.pid[0], u_I_max=0.03)
+                x_vel = self.x_controller.PID_controller
+                (distance_offset,*self.pid[0], u_I_max=0.03)
                 self.send_movement(x=x_vel)
                 if abs(distance_offset) < 0.01/accuracy:
                         self.mode += 1 
