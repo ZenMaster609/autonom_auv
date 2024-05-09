@@ -52,9 +52,17 @@ class PipelineImageNode(Node):
 
     def custom_cleanup(self):
         """Cleans up certain error messages when closing node"""
+<<<<<<< HEAD
         self.logger.plot_data_table("gir", self.colum1,self.pid_gir,self.handler.filter_arucos(),self.plot_names)
         self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,self.handler.filter_arucos(),self.plot_names_y)
         self.logger_dvl.plot_data("xy" ,self.plot_names_dvl)
+=======
+        self.logger.plot_data_table("gir", self.colum1,self.pid_gir,
+                        self.handler.filter_arucos(),self.plot_names)
+        #self.logger_y.plot_data_table("svai" ,self.colum1,self.pid_svai,
+                        self.handler.filter_arucos(),self.plot_names_y)
+        #self.logger_dvl.plot_data("xy" ,self.plot_names_dvl)
+>>>>>>> fc3d3fea7be8baf4b644307f897b5f1e701b921d
         self.get_logger().info(f'I ran')
 
     def send_movement(self,ang_vel=0.0,linear_y_vel=0.0):
@@ -75,7 +83,8 @@ class PipelineImageNode(Node):
         self.odom_y = msg.pose.pose.position.y   
         self.odom_z = msg.pose.pose.position.z
         self.odom_roll = msg.pose.pose.orientation.x
-        self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler(msg.pose.pose.orientation.z,0,0,msg.pose.pose.orientation.w)
+        self.odom_yaw ,a,b= ImageMethods.quaternion_to_euler
+            (msg.pose.pose.orientation.z,0,0,msg.pose.pose.orientation.w)
         self.angular_yaw = -msg.twist.twist.angular.z
         self.velocity_y = msg.twist.twist.linear.y
         self.velocity_x = msg.twist.twist.linear.x
@@ -89,12 +98,14 @@ class PipelineImageNode(Node):
             self.time_start = time.time()
             angle, center_x, done = self.handler.find_pipeline(75000) #Get info about the pipeline position'
             distance_pipe = self.odom_z-0.2
-            center_x_meters = ImageMethods.pixles_to_meters(center_x,distance_pipe,self.handler.dims[1])
+            center_x_meters = ImageMethods.pixles_to_meters
+                (center_x,distance_pipe,self.handler.dims[1])
             #center_x_meters = ImageMethods.pixles_to_meters69(center_x)
 
             if self.state == 1:
                 self.plot_names_dvl=["X cordinates","Y cordinates","Yaw",""]
-                self.logger_dvl.log_data(self.odom_x,self.odom_y,self.odom_yaw)
+                self.logger_dvl.log_data
+                    (self.odom_x,self.odom_y,self.odom_yaw)
                 self.colum1 = ["P","I","D","Acceleration","min area box"]
                 self.colum2 = [17,0.1,0,0.1,.4654,75000]
                 return #if done stop camera based movement
@@ -106,17 +117,21 @@ class PipelineImageNode(Node):
                 self.move_pos(0.0,0.0) #tell the DVl movement node you want to go home
                 return
             
-            set_point = ImageMethods.pixles_to_meters(self.handler.dims[1]/2,distance_pipe,self.handler.dims[1])
+            set_point = ImageMethods.pixles_to_meters
+                (self.handler.dims[1]/2,distance_pipe,self.handler.dims[1])
             offsett_x = -PidController.calculate_offset((center_x_meters),set_point)
             if self.mode ==1:
-                angle_vel = self.angular_controller.PID_controller(angle,*self.pid_gir, scale_devide=1, u_I_max=0.10)  #PID-regulate the ROV yaw
-                linear_y_vel = self.y_controller.PID_controller(-offsett_x,*self.pid_svai, scale_devide=1,u_I_max=0.02) #Do the same for ROV Y posistion
+                angle_vel = self.angular_controller.PID_controller
+                (angle,*self.pid_gir, scale_devide=1, u_I_max=0.10)  #PID-regulate the ROV yaw
+                linear_y_vel = self.y_controller.PID_controller
+                (-offsett_x,*self.pid_svai, scale_devide=1,u_I_max=0.02) #Do the same for ROV Y posistion
                 if linear_y_vel > 1:linear_y_vel=1.0
                 if abs(angle)> math.pi/4: linear_y_vel = 0.0
                 self.send_movement(angle_vel,linear_y_vel)   #send regulated values
                 #self.get_logger().info(f" angle= {angle}, angel degrees = {angle*180/math.pi}")
             else:
-                angle_vel= self.angular_controller.PID_controller(offsett_x,(7.8125),0.05,0.05,0.5,10000)  #PID-regulate the ROV yaw
+                angle_vel= self.angular_controller.PID_controller
+                (offsett_x,(7.8125),0.05,0.05,0.5,10000)  #PID-regulate the ROV yaw
                 self.send_movement(linear_y_vel) #send regulated value
             # gir = yaw, svai = y, jag = x
             #push logging data once per tick

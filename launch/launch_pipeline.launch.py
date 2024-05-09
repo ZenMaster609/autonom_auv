@@ -14,8 +14,10 @@ def generate_launch_description():
     #Configure RSP
     rsp = IncludeLaunchDescription(
                 PythonLaunchDescriptionSource([os.path.join(
-                    get_package_share_directory(package_name),'launch','rsp.launch.py'
-                )]), launch_arguments={'use_sim_time': 'true'}.items()
+                    get_package_share_directory(package_name),
+                    'launch','rsp.launch.py'
+                    )]), launch_arguments={'use_sim_time':
+                   'true'}.items()
     )
     #pick world
     world_file_path = os.path.join(get_package_share_directory('autonom_auv'), 'worlds', 'pipeline.world')

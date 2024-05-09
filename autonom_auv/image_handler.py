@@ -92,7 +92,8 @@ class ImageHandler:
         #Try to find pipe(s)
         try:
             #paint a line to split the pipe
-            cv2.line(self.hsv_image,(0,int(self.dims[0]/2)),(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
+            cv2.line(self.hsv_image,(0,int(self.dims[0]/2))
+                 ,(self.dims[1],int(self.dims[0]/2)),(0,0,0),10)     
             box_list = ImageMethods.find_boxes(self.hsv_image, image_edit, (self.scale_factor**2)*min_box_sice, True)
             highest_box = ImageMethods.find_highest_box(box_list)
             #Find the box highest in the picture as desired pipe to trace, if no pipe then alert the mission node that mission is done.
@@ -140,7 +141,8 @@ class logging_data:
         self.start_time = time.time()
     
     def log_data(self,value1=None,value2=None,value3=None,
-                 value4=None,marker1=None,marker2=None,marker3=None,marker4=None):
+                 value4=None,marker1=None,marker2=None
+                 ,marker3=None,marker4=None):
         """Appends new data for up to 4 datasets"""
         time_now = time.time()-self.start_time
         time_now = round(time_now,3)
@@ -167,7 +169,8 @@ class logging_data:
     def plot_data(self, name, plot_names=["","","",""]): 
         """Plots up to 4 datasets from existing data"""
         fig = make_subplots(rows=2, cols=2,
-        subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
+        subplot_titles=(plot_names[0],plot_names[1]
+                ,plot_names[2],plot_names[3]))
         fig.add_trace(go.Scatter(x=self.time, y=self.data1),row=1, col=1,)
         if self.data2 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2),row=1, col=2)
@@ -185,7 +188,8 @@ class logging_data:
             rows=2, cols=2,
             specs=[[{"type": "table"}, {"type": "scatter"}],
                 [{"type": "scatter"}, {"type": "scatter"}]],
-        subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
+        subplot_titles=(plot_names[0],plot_names[1]
+                    ,plot_names[2],plot_names[3]))
         fig.add_trace(go.Table(header=dict(values=['Name', 'Value',"AruCo Codes"]),
                                 cells=dict(values=[colum1, colum2,colum3])),
                                 row=1, col=1)
@@ -201,7 +205,8 @@ class logging_data:
     def plot_data_markers(self, name, plot_names=["","","",""]): 
         """Plots up to 4 datasets from existing data"""
         fig = make_subplots(rows=2, cols=2,
-        subplot_titles=(plot_names[0],plot_names[1],plot_names[2],plot_names[3]))
+        subplot_titles=(plot_names[0],plot_names[1],
+                        plot_names[2],plot_names[3]))
         fig.add_trace(go.Scatter(x=self.time, y=self.data1,text=self.markers1,),row=1, col=1,)
         if self.data2 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data2,text=self.markers2),row=1, col=2)
