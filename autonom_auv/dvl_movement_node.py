@@ -21,10 +21,10 @@ class DvlMovementNode(Node):
     def __init__(self):
         super().__init__('dvl_movement_node')
         #Topic pub/sub + timer declaration
-        self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
-        self.create_subscription(Twist, '/target', self.move_pos_callback, 10)
-        self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)
-        self.publisher2 = self.create_publisher(Bool, '/move_bool', 10)
+        self.create_subscription(Odometry, '/odom', self.odom_callback, 40)
+        self.create_subscription(Twist, '/target', self.move_pos_callback, 40)
+        self.publisher1 = self.create_publisher(Twist, '/tf_movement', 40)
+        self.publisher2 = self.create_publisher(Bool, '/move_bool', 40)
         self.timer = self.create_timer(0.2, self.timer_callback)
         #pid controller list declaration
         self.blind_pid = [PidController() for _ in range(6)]

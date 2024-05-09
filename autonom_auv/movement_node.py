@@ -12,8 +12,8 @@ class MovementNode(Node):
     def __init__(self):
         super().__init__('movement_node')
         #Topic pub/subs
-        self.publisher = self.create_publisher(Twist, '/cmd_vel', 10)
-        self.create_subscription(Twist,'/tf_movement', self.movement_callback,10)
+        self.publisher = self.create_publisher(Twist, '/cmd_vel', 40)
+        self.create_subscription(Twist,'/tf_movement', self.movement_callback,40)
 
         #Object declarations 
         self.yaw_controller = PidController()
