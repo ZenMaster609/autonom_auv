@@ -41,15 +41,13 @@ class PidController:
                u_D = D*(e-self.Pre_offset)/T_s
                Output = u_P+u_I+u_D
 
-
+          #sets the newest values as the preious values 
           self.Pre_offset = e
           self.Pre_time = time_now
           self.Pre_e_f = e_f
           self.Pre_I = u_I
           self.Pre_D = u_D
 
-          #if abs(Output) < margin:
-          #     Output = 0.0
           if abs(Output) > max_out:
                Output = max_out*np.sign(Output)
           return Output

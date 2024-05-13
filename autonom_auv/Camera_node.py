@@ -25,8 +25,6 @@ class USB_Camera(Node):
             # Arrays to store object points and image points from all the images.
             self.objpoints = [] # 3d point in real world space
             self.imgpoints = [] # 2d points in image plane.
-         
-         
          self.video_writer = None
 
     def custom_cleanup(self):
@@ -53,11 +51,9 @@ class USB_Camera(Node):
                     cv2.drawChessboardCorners(frame, (7,9), corners2, ret)
                     ret, self.mtx, self.dist, rvecs, tvecs = cv2.calibrateCamera(self.objpoints, self.imgpoints, self.gray.shape[::-1], None, None)
 
-
             mtx = np.array(((426.17685011,   0,         320.38487224),
              (0,          429.76884458, 225.27715136),
              (0,           0,           1       ),))
-
             dist = np.array(((-0.35653578,  0.11731714,  0.01052246,  0.00376304, -0.01392377),))
 
             img = frame.copy()

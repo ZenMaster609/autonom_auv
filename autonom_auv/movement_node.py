@@ -28,6 +28,7 @@ class MovementNode(Node):
         self.roll = 0.0
         self.pitch = 0.0
         self.yaw = 0.0  
+        self.counter = 0
 
 
     def publish_movement(self):

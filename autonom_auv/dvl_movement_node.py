@@ -28,6 +28,7 @@ class DvlMovementNode(Node):
         self.timer = self.create_timer(0.2, self.timer_callback)
         #pid controller list declaration
         self.blind_pid = [PidController() for _ in range(6)]
+        self.logger = logging_data()
         #Node variable declarations
         self.pos = [None,None,None,None,None,None]
         self.target_pos = [None,None,None,None,None,None]
@@ -43,8 +44,17 @@ class DvlMovementNode(Node):
         pid_jag = [1,0.19, 0.19] 
         pid_svai = [6,0.19, 0.13]
         self.pid = [pid_jag,pid_svai,pid_svai,pid_gir,pid_gir,pid_gir]
-        self.margin = [0.05,0.05,0.05, 0.001, 0.001, 0.001]
-        self.u_I_max = [0.1, 0.1,0.1, 0.1, 0.1, 0.01]
+        self.margin = [0.02,0.02,0.02, 0.001, 0.001, 0.001]
+        self.u_I_max = [0.1, 0.1, 0.1, 0.1, 0.1, 0.01]
+
+
+    def custom_cleanup(self):
+        """Cleans up certain error messages when closing node"""
+        self.logger.plot_data("DVL" ,["Gir","Svai","", ""])
+        self.get_logger().info(f'I ran')
+
+
+
 
     def send_movement(self,x = 0.0, y = 0.0, yaw =0.0, axis = 6, magnitude = 0.0):
         """Sends movements to the movement node"""
@@ -93,10 +103,11 @@ class DvlMovementNode(Node):
     def timer_callback(self):   
         """Calls appropriate functions on a timer to regulate the ROV postition towards its targets"""
         self.reset_pi()
-        x = self.check_goal_pose(0) #sjekk x
-        y = self.check_goal_pose(1) #sjekk y
-        yaw = self.check_goal_pose(5) #sjekk yaw
+        x, ox = self.check_goal_pose(0) #sjekk x
+        y, oy = self.check_goal_pose(1) #sjekk y
+        yaw, oyaw = self.check_goal_pose(5) #sjekk yaw
         self.send_movement(x=x, y=y, yaw=yaw)
+        self.logger.log_data(oyaw,oy)
  
     def xytrig(self):
         """Remaps x and y coordinates using trigonometry"""
@@ -121,7 +132,7 @@ class DvlMovementNode(Node):
 
     def check_goal_pose(self, axis):
         """Checks targets vs position when called, call continously to regulate so that target = position."""
-        if self.target_pos[axis] is None:return 0.0
+        if self.target_pos[axis] is None:return 0.0, 0.0
         if axis == 0:pos_fixed, _ = self.xytrig()
         elif axis == 1:_, pos_fixed = self.xytrig() 
         else:pos_fixed = self.pos[axis]
@@ -131,15 +142,15 @@ class DvlMovementNode(Node):
             self.target_pos[axis] = None
             self.get_logger().info(f"reached goal in axis {axis}")
             self.send_false()
-            return 0.0
+            return 0.0, 0.0
         else:
             offset = round(self.target_pos[axis] - pos_fixed, 4)
-            vel = self.blind_pid[axis].PID_controller
-                (offset,*self.pid[axis],self.u_I_max[axis]
+            vel = self.blind_pid[axis].PID_controller(
+                offset,*self.pid[axis],self.u_I_max[axis]
                  ,margin=self.margin[axis])
             if abs(vel) > self.top_speed[axis]:vel = self.top_speed[axis]*np.sign(vel)
             self.get_logger().info(f"axis = {axis} goal = {self.target_pos[axis]}, offset = {offset}, odom = {round(pos_fixed, 4)}, vel = {round(vel,4)}, rot = {self.pos[5]}") 
-            return vel
+            return vel, offset
 
 
 
@@ -147,7 +158,9 @@ class DvlMovementNode(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = DvlMovementNode()
+    signal.signal(signal.SIGINT, lambda sig, frame: node.custom_cleanup())
     rclpy.spin(node)
+    node.custom_cleanup()
     cv2.destroyAllWindows()
     node.destroy_node()
     rclpy.shutdown()

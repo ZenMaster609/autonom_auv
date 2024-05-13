@@ -28,7 +28,6 @@ class PipelineImageNode(Node):
         self.create_subscription(Odometry, '/odom', self.odom_callback, 10)
         self.publisher = self.create_publisher(Twist, '/target', 10)
         self.create_timer(0.05, self.timer_callback1)
-        #self.create_timer(1, self.timer_callback2)
         self.publisher1 = self.create_publisher(Twist, '/tf_movement', 10)  
         self.bridge = CvBridge()
         self.angular_controller = PidController()
@@ -72,10 +71,7 @@ class PipelineImageNode(Node):
 
     def timer_callback1(self):
         if self.handler.feed_image is not None:
-            #print(f"t_s: {time.time()-self.time_start}")
             self.time_start = time.time()
-            #print(f"time1: {self.time_start-time.time()}")
-            #print(f"time2: {self.time_start-time.time()}")
             angle_deg,center_x, done = self.handler.find_pipeline()
             if self.state == 1:return
             if done:
@@ -83,11 +79,8 @@ class PipelineImageNode(Node):
                 print("done")
                 self.move_pos(0,0.0) #if distance = 0.0, home
                 return
-            #print(f"time3: {self.time_start-time.time()}")
             set_point = (self.handler.dims[0])/2
             offsett_x = PidController.calculate_offset((center_x),self.handler.dims[1]/2)
-            # print(f"time4: {self.time_start-time.time()}")
-            #if not done:
             if self.mode ==1:
                 angle_vel =self.angular_controller.PID_controller(angle_deg,(15),0.0,0.0,0.5,1000)
                 linear_y_vel =  self.y_controller.PID_controller(offsett_x,(10.62),0.05,0.05,0.5,10000)
@@ -99,18 +92,6 @@ class PipelineImageNode(Node):
             self.logger.log_data(angle_deg,angle_vel,self.angular_yaw )
             self.colum1 = ["P","I","D","Acceleration","min area box"]
             self.colum2 = [2,0,0,0.4654,70000]
-            # else:
-            #     self.state = 1
-            #     print("done")
-            #     self.move_pos(0,0.0) #if distance = 0.0, home
-                
-            #print(f"time5: {self.time_start-time.time()}")
-            #self.handler.show_image(False)
-            #print(f"time6: {self.time_start-time.time()}")
-            
-            #print(f"time7: {self.time_start-time.time()}")
-
-
 
         
 def main(args=None):

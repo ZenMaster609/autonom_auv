@@ -41,7 +41,7 @@ class ImageHandler:
             showImage = ImageMethods.stack_images([self.feed_image,self.feed_image2])
             ImageMethods.showImage(showImage)
         
-    def find_bench(self, front, mode):
+    def find_bench(self, front, mode, test = False):
         #Copy and scale current imagefeeds
         original = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
         image_edit = ImageMethods.scale_image(self.feed_image.copy(), scale_factor=self.scale_factor)
@@ -67,15 +67,9 @@ class ImageHandler:
         except Exception as e:_ = e #Display camerafeeds no matter if bench is found or not.
         cv2.putText(image_edit, f"Mode:{mode}",[700,525], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
         cv2.putText(image_edit, f"Angle:{round(angle_deg, 1)}",[550,50], cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 0, 255), 2, cv2.LINE_AA)
-        #showImage = ImageMethods.stack_images([image_edit,image_edit2])
-        showImage = ImageMethods.stack_images([original,hsv,fixed_hsv,image_edit])
-        ImageMethods.showImage(showImage)
-        # self.feed_image = cv2.resize(self.feed_image, (0,0), fx=0.5, fy=0.5)
-        # s1 = np.hstack((self.feed_image,self.feed_image))
-        # s2 = np.hstack((cv2.cvtColor(self.hsv_image, cv2.COLOR_BAYER_BG2BGR),image_edit))
-        # s3 = np.vstack((s1,s2))
-        # s3 = cv2.resize(s3, (0,0), fx=0.25, fy=0.25)
-        # ImageMethods.showImage(s3, 1)
+        if test:showImage = ImageMethods.stack_images([original,hsv,fixed_hsv,image_edit])
+        else:showImage = ImageMethods.stack_images([image_edit,image_edit2])
+        ImageMethods.showImage(showImage,0.7)
         return size, positions, angle #return relevant positional data.
         
 
@@ -178,7 +172,7 @@ class logging_data:
             fig.add_trace(go.Scatter(x=self.time, y=self.data3),row=2, col=1)
         if self.data4 is not None:
             fig.add_trace(go.Scatter(x=self.time, y=self.data4),row=2, col=2)
-        fig.write_html(name + ".html")
+        fig.write_html(name + ".html" )
         image_path = name + ".html"
         subprocess.run(['xdg-open', image_path], check=True)
 
